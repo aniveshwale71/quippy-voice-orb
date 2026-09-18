@@ -6,19 +6,20 @@ A standalone interactive voice-orb prototype, with a browser preview and the nat
 
 Run `npm start`, then open http://localhost:4173. There is no dependency installation or build step. Deploy the repository to Vercel using the included `vercel.json` (static output directory: `web`). Microphone input needs HTTPS or localhost. Audio is processed locally; no recordings are saved or uploaded.
 
-- 1,600 particles, evenly split between two colours.
+- 2,000 particles, evenly split between two colours.
 - 1.5× dot size, soft colour-matched particle halos, and doubled edge feathering.
 - Five-position colour sliders, darker particle shades, softened 500 pigments.
 - White glow, angled lighting, more colour swirling during speech.
 - A bundled synthetic sample, measured during playback using Web Audio.
 - Live microphone response, tap ripple and drag rotation.
+- Synchronized idle breathing (3% expansion) and a continuous surface ripple.
 - Reduced-motion support.
 
 The browser is a WebGL adaptation, not an execution of the Metal renderer. The shader colour field and lighting follow the native prototype. The browser gesture response uses a lightweight ripple and rotation; the native version includes the full particle spring simulation. Browser and native text-to-speech voices can differ.
 
 ## Latest native version
 
-The iOS source and downloadable ZIP include 2,000 particles (1,000 per colour), a continuous idle ripple at 25% of tap force, and synchronized 3% core breathing over 4.8 seconds. The browser preview remains at its previously published version until a separate web update is approved. Automatic Git deployments to Vercel are disabled; publishing remains an explicit step.
+The iOS source and downloadable ZIP include 2,000 particles (1,000 per colour), a continuous idle ripple at 25% of tap force, and synchronized 3% core breathing over 4.8 seconds. The browser preview includes matching 4.8-second breathing and a gentler idle surface ripple, using its lightweight displacement model. Automatic Git deployments to Vercel are disabled; publishing remains an explicit step.
 
 ## Run on an iPhone
 
