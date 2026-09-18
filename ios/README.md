@@ -10,7 +10,8 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 - Continuous idle ripple at 25% of tap force, synchronized with 3% inner-core breathing on a 4.8-second cycle.
 - 1.5× dot size, soft colour-matched particle halos, and doubled edge feathering.
 - Five-position colour sliders, darker particle shades, softened 500 pigments.
-- White glow, angled lighting, more colour swirling during speech.
+- Glassier upper-left reflection, thin luminous rim, reduced white haze, and colour swirling during speech.
+- Inner core diameter is 85% of the nominal outer sphere diameter.
 - A bundled synthetic sample, measured during playback using Web Audio.
 - Live microphone response, tap ripple and drag rotation.
 - Reduced-motion support.
@@ -39,9 +40,9 @@ On the current iPhone 17 Pro simulator (402 × 874 logical points), with suffici
 |---|---:|---:|
 | Square rendering canvas | 369.84 × 369.84 | 1109.52 × 1109.52 |
 | Nominal outer particle diameter | 232.62936 | 697.88808 |
-| Inner core diameter before feathering | 164.20896 | 492.62688 |
+| Inner core diameter before feathering | 197.734956 | 593.204868 |
 
-The nominal shell is 62.9% of the canvas; the core is 44.4%. Raster dimensions round to whole pixels. Perspective, shell thickness, stray particles, gestures and speech alter the visible outer bounds; there is no single exact visible diameter for an animated cloud. Glow and edge feathering also have gradual boundaries. Browser measurements are shown in the preview's Dimensions disclosure.
+The nominal shell is 62.9% of the canvas; the core is 53.465%. Raster dimensions round to whole pixels. Perspective, shell thickness, stray particles, gestures and speech alter the visible outer bounds; there is no single exact visible diameter for an animated cloud. Glow and edge feathering also have gradual boundaries. Browser measurements are shown in the preview's Dimensions disclosure.
 
 ## Source layout
 

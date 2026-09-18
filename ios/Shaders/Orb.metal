@@ -290,7 +290,7 @@ fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
     // White bloom, independent of the selected emotion pigments.
     float3 tint = float3(1.0f);
     float falloff = exp(-pow(max(radius - 0.76f, 0.0f) / 0.43f, 2.0f));
-    float alpha = falloff * (0.50f + u.audioLevel * 0.08f)
+    float alpha = falloff * (0.34f + u.audioLevel * 0.06f)
                 * (1.0f - smoothstep(1.45f, 1.65f, radius));
     return float4(tint, alpha);
 }
@@ -342,7 +342,7 @@ fragment CoreFragmentOut orbCoreFragment(CoreVertexOut in [[stage_in]],
 
     // Milk-glass diffusion: keep shadows close to the base hue instead of
     // squaring the colour (which created a saturated, muddy lower hemisphere).
-    float3 shade = base * mix(u.coreAmbient, 1.0f, wrapped);
+    float3 shade = base * mix(u.coreAmbient - 0.08f, 1.0f, wrapped);
 
     // Broad transmitted light gives a rounded highlight without a glossy hotspot.
     float3 halfway = normalize(lightDir + float3(0.0f, 0.0f, 1.0f));
@@ -354,17 +354,28 @@ fragment CoreFragmentOut orbCoreFragment(CoreVertexOut in [[stage_in]],
     shade = mix(shade, transmittedLight, diffusion);
     shade += base * pow(ndoth, 6.0f) * u.coreSpecular;
 
+    // A softbox reflection sits on the upper-left surface, with a smaller
+    // glossy centre so the lighting reads as glass rather than white fog.
+    float reflection = 0.30f * pow(ndoth, 24.0f) + 0.16f * pow(ndoth, 72.0f);
+    shade = mix(shade, float3(1.0f, 0.995f, 0.985f), reflection);
+    float opposite = pow(saturate(-ndotl), 1.5f);
+    shade *= 1.0f - opposite * 0.10f;
+
     // Modest grazing light balances gentle edge shading: enough depth to read
     // as a sphere, without the original hard, dark silhouette.
     float rim = pow(1.0f - z, 2.0f);
     // Let the white bloom scatter just inside the surface as well.
-    shade = mix(shade, float3(1.0f), rim * 0.20f);
+    shade = mix(shade, float3(1.0f), rim * 0.08f);
+    // Narrow luminous rim follows the curved surface, strongest near the light.
+    float rimBand = exp(-pow((sqrt(r2) - 0.91f) / 0.035f, 2.0f));
+    float rimLight = 0.08f + 0.16f * saturate(ndotl);
+    shade = mix(shade, float3(1.0f), rimBand * rimLight);
     shade *= mix(1.0f - u.coreEdgeDarkening, 1.0f, sqrt(z));
 
     // A small diffuse silhouette roll-off is resolved analytically, not via
     // a full-view blur that would soften the outer particles as well.
     float radial = sqrt(r2);
-    float edge = max(fwidth(radial) * 1.5f, 0.26f);
+    float edge = max(fwidth(radial) * 1.5f, 0.14f);
     float alpha = 1.0f - smoothstep(1.0f - edge, 1.0f, radial);
 
     // Real depth, so the sphere occludes rear particles instead of the whole scene.

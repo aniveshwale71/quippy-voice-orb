@@ -15,7 +15,7 @@ public struct OrbConfiguration: Equatable {
     public var sphereFillFraction: Float = 0.74 * 0.85
 
     /// Core diameter as a fraction of the particle-sphere diameter.
-    public var coreRadiusRatio: Float = 0.60 / 0.85  // Preserve the core diameter as the outer shell shrinks.
+    public var coreRadiusRatio: Float = 0.85  // Inner diameter is 85% of the nominal outer sphere diameter.
 
     public var fieldOfView: Float = .pi / 6  // 30°
 
