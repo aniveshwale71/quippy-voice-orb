@@ -38,6 +38,8 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
 
     /// Smoothed gate from the current state, so switching states ramps the
     /// audio response in and out instead of stepping it.
+    private var idleBlend: Float = 1
+    private var idlePhase: Float = 0
     private var stateResponse: Float = 0
     private var coreMotionPhase: Float = 0
     private var coreMotionIntensity: Float = 0.12
@@ -222,6 +224,9 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
             dragOrigin: SIMD4(gestures.dragOrigin ?? .zero, gestures.dragOrigin == nil ? 0 : 1),
             dragVector: SIMD4(gestures.dragVector, 0),
             coreLightDirection: SIMD4(normalize(c.coreLightDirection), 0),
+            idleMotion: SIMD4(idlePhase, c.tapStrength * 0.25 * idleBlend,
+                              1 + 0.03 * (0.5 - 0.5 * cos(idlePhase)) * idleBlend
+                                * ((reduceMotionEnabled && configuration.respectsReduceMotion) ? c.reducedMotionScale : 1), 0),
             time: clock.time,
             deltaTime: clock.deltaTime,
             orbRadius: 1,
@@ -401,6 +406,10 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
         }
 
         let c = effectiveConfiguration
+        let idleTarget: Float = state == .idle ? 1 : 0
+        idleBlend += (idleTarget - idleBlend) * (1 - exp(-clock.deltaTime / 0.65))
+        // One 4.8-second cycle drives both the surface wave and core breathing.
+        idlePhase = (idlePhase + clock.deltaTime * 2 * .pi / 4.8).truncatingRemainder(dividingBy: 2 * .pi)
         let target: Float
         switch state {
         case .idle: target = c.idleResponse

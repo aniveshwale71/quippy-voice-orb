@@ -27,6 +27,8 @@ typedef struct {
 
     vector_float4 coreLightDirection;  // xyz unit, w unused
 
+    vector_float4 idleMotion; // x cycle phase, y ripple force, z core scale, w unused
+
     float time;
     float deltaTime;
     float orbRadius;

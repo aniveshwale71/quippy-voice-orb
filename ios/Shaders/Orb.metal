@@ -104,6 +104,16 @@ kernel void orbParticleUpdate(device const OrbParticleSeed *seeds   [[buffer(0)]
 
     float3 outward = normalize(resting);
 
+    // A smooth outward / inward surface wave shares the core's breathing phase.
+    // Use the same Gaussian band and spring response as taps, at one quarter of their force.
+    float idleArc = acos(clamp(dot(dir, float3(0.0f, 0.0f, 1.0f)), -1.0f, 1.0f));
+    float breath = 0.5f - 0.5f * cos(u.idleMotion.x);
+    float idleOffset = (idleArc - M_PI_F * breath) / u.rippleWidth;
+    float idleBand = exp(-idleOffset * idleOffset);
+    float3 idleAway = surfaceAwayDirection(dir, float3(0.0f, 0.0f, 1.0f));
+    float3 idleAwayWorld = (u.spin * float4(idleAway, 0.0f)).xyz;
+    force += (outward + idleAwayWorld * 0.35f) * u.idleMotion.y * idleBand;
+
     for (uint k = 0; k < u.impulseCount; ++k) {
         OrbImpulse impulse = impulses[k];
         float age = u.time - impulse.origin.w;
@@ -168,7 +178,7 @@ kernel void orbParticleUpdate(device const OrbParticleSeed *seeds   [[buffer(0)]
     OrbParticleRender r;
     r.positionSize = float4(world, max(pixelSize, 0.75f));
     // Alternating Fibonacci identities each cover the entire sphere evenly.
-    // Stable IDs preserve an exact 50/50 split for the default 1600 dots.
+    // Stable IDs preserve an exact 50/50 split for the default 2000 dots.
     float3 tint = (id & 1u) == 0u ? u.particleColorA.rgb : u.particleColorB.rgb;
     r.tint = float4(tint, alpha);
     out[id] = r;
@@ -272,7 +282,7 @@ static float3 coreRegionColor(float3 n, constant OrbUniforms &u) {
 
 fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
                                 constant OrbUniforms &u [[buffer(0)]]) {
-    float worldRadius = u.orbRadius * u.coreRadiusRatio * (1.0f + clamp(u.audioLevel, 0.0f, 1.0f) * u.coreAudioGain);
+    float worldRadius = u.orbRadius * u.coreRadiusRatio * u.idleMotion.z * (1.0f + clamp(u.audioLevel, 0.0f, 1.0f) * u.coreAudioGain);
     float ndcRadius = worldRadius / length(u.cameraPosition.xyz) / u.tanHalfFov;
     float2 p = float2(in.uv.x * u.aspect, in.uv.y) / max(ndcRadius, 0.0001f);
     float radius = length(p);
@@ -295,7 +305,7 @@ fragment CoreFragmentOut orbCoreFragment(CoreVertexOut in [[stage_in]],
 {
     float cameraDistance = length(u.cameraPosition.xyz);
     float audio = clamp(u.audioLevel, 0.0f, 1.0f);
-    float worldRadius = u.orbRadius * u.coreRadiusRatio * (1.0f + audio * u.coreAudioGain);
+    float worldRadius = u.orbRadius * u.coreRadiusRatio * u.idleMotion.z * (1.0f + audio * u.coreAudioGain);
     float ndcRadius = (worldRadius / cameraDistance) / u.tanHalfFov;
 
     // NDC x is compressed by the aspect ratio, so undo it before solving the disc.

@@ -16,6 +16,10 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 
 The browser is a WebGL adaptation, not an execution of the Metal renderer. The shader colour field and lighting follow the native prototype. The browser gesture response uses a lightweight ripple and rotation; the native version includes the full particle spring simulation. Browser and native text-to-speech voices can differ.
 
+## Latest native version
+
+The iOS source and downloadable ZIP include 2,000 particles (1,000 per colour), a continuous idle ripple at 25% of tap force, and synchronized 3% core breathing over 4.8 seconds. The browser preview remains at its previously published version until a separate web update is approved. Automatic Git deployments to Vercel are disabled; publishing remains an explicit step.
+
 ## Run on an iPhone
 
 1. Download the source ZIP or clone this repository on a Mac.

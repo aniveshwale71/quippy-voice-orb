@@ -6,7 +6,8 @@ A standalone interactive voice-orb prototype, with a browser preview and the nat
 
 Run `npm start`, then open http://localhost:4173. There is no dependency installation or build step. Deploy the repository to Vercel using the included `vercel.json` (static output directory: `web`). Microphone input needs HTTPS or localhost. Audio is processed locally; no recordings are saved or uploaded.
 
-- 1,600 particles, evenly split between two colours.
+- 2,000 particles, evenly split between two colours (1,000 each).
+- Continuous idle ripple at 25% of tap force, synchronized with 3% inner-core breathing on a 4.8-second cycle.
 - 1.5× dot size, soft colour-matched particle halos, and doubled edge feathering.
 - Five-position colour sliders, darker particle shades, softened 500 pigments.
 - White glow, angled lighting, more colour swirling during speech.
