@@ -52,6 +52,10 @@ public struct VoiceOrbView: UIViewRepresentable {
 
     public func updateUIView(_ view: MTKView, context: Context) {
         guard let renderer = context.coordinator.renderer else { return }
+        if view.isPaused == configuration.renderingEnabled {
+            view.isPaused = !configuration.renderingEnabled
+            if configuration.renderingEnabled { renderer.resumeClock() }
+        }
         renderer.configuration = configuration
         renderer.audioProvider = audioProvider
         if audioProvider == nil {

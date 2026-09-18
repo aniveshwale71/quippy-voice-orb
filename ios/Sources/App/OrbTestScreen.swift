@@ -4,6 +4,7 @@ import SwiftUI
 /// the two transport controls. The controls and the permission flow live here,
 /// never in the reusable component.
 struct OrbTestScreen: View {
+    @State private var selectedMaterial: OrbMaterial = DeveloperOptions.initialMaterial
     @State private var firstColour: Double = 0
     @State private var secondColour: Double = 1
 
@@ -25,11 +26,41 @@ struct OrbTestScreen: View {
             configuration.backgroundColor.ignoresSafeArea()
 
             VStack(spacing: 12) {
-                GeometryReader { proxy in
-                    let side = min(proxy.size.width, proxy.size.height) * 0.92
-                    VoiceOrb(configuration: configuration, audioProvider: host.provider)
-                        .frame(width: side, height: side)
-                        .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                TabView(selection: $selectedMaterial) {
+                    ForEach(OrbMaterial.allCases) { material in
+                        GeometryReader { proxy in
+                            let side = min(proxy.size.width, proxy.size.height) * 0.92
+                            VoiceOrb(configuration: configuration(for: material), audioProvider: host.provider)
+                                .frame(width: side, height: side)
+                                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
+                        }
+                        .tag(material)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                VStack(spacing: 8) {
+                    Text("\(selectedMaterial.rawValue + 1) / 3 · \(selectedMaterial.title)")
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .accessibilityIdentifier("orbVariantTitle")
+                    HStack(spacing: 12) {
+                        ForEach(OrbMaterial.allCases) { material in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.3)) { selectedMaterial = material }
+                            } label: {
+                                Circle()
+                                    .fill(selectedMaterial == material ? Color.primary : Color.secondary.opacity(0.25))
+                                    .frame(width: 7, height: 7)
+                                    .frame(width: 28, height: 28)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(material.title)
+                        }
+                    }
+                    Text("Swipe beside the orb to compare · Drag the orb to move it")
+                        .font(.system(size: 11, design: .rounded))
+                        .foregroundStyle(.secondary)
                 }
 
                 VStack(spacing: 12) {
@@ -78,6 +109,13 @@ struct OrbTestScreen: View {
             // playback; nothing keeps running behind the user's back.
             if phase != .active { host.releaseAudio() }
         }
+    }
+
+    private func configuration(for material: OrbMaterial) -> OrbConfiguration {
+        var c = configuration
+        c.material = material
+        c.renderingEnabled = selectedMaterial == material
+        return c
     }
 
     private func colourSlider(_ title: String, selection: Binding<Double>) -> some View {
@@ -224,6 +262,15 @@ final class OrbTestHost: ObservableObject {
 /// Launch-argument switches for capturing per-phase evidence. Not product
 /// settings, not visible in the UI, and removable in one deletion.
 enum DeveloperOptions {
+    static var initialMaterial: OrbMaterial {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let flag = arguments.firstIndex(of: "-orbVariant"),
+              arguments.indices.contains(flag + 1),
+              let value = Int(arguments[flag + 1]),
+              let material = OrbMaterial(rawValue: value) else { return .baseline }
+        return material
+    }
+
     static var configuration: OrbConfiguration {
         let arguments = ProcessInfo.processInfo.arguments
         if arguments.contains("-orbLayerCore") { return .coreOnly }

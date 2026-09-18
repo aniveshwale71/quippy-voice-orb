@@ -212,8 +212,8 @@ fragment float4 orbParticleFragment(ParticleVertexOut in [[stage_in]],
     // The original dot occupies the central half of this enlarged sprite.
     // Feather its edge, then blend a restrained colour-matched halo around it.
     float edge = max(fwidth(d), 0.055f);
-    // Double the previous transition width, retaining the outer dot radius.
-    float featherWidth = 2.0f * (0.27f - max(0.25f - edge, 0.10f));
+    // Half the previous transition width again, retaining the outer dot radius.
+    float featherWidth = 0.5f * (0.27f - max(0.25f - edge, 0.10f));
     float core = 1.0f - smoothstep(0.27f - featherWidth, 0.27f, d);
     float halo = 0.40f * exp(-12.0f * d * d)
         * (1.0f - smoothstep(0.36f, 0.5f, d));
@@ -280,6 +280,31 @@ static float3 coreRegionColor(float3 n, constant OrbUniforms &u) {
     return mix(pigment, float3(1.0f, 0.985f, 0.965f), 0.38f);
 }
 
+// Original native interpretation of the VoiceOrbs Plasma visual reference.
+// Smooth advected colour lobes, rather than a rotating two-region boundary.
+// `coreMotionIntensity` already ramps with state (idle/listening/speaking)
+// and live audio elsewhere in the pipeline; here it also feeds the mixing
+// itself, not just its speed, so speaking reads as the two pigments actively
+// churning and interleaving rather than the same pattern spinning faster.
+static float3 plasmaColor(float3 n, constant OrbUniforms &u) {
+    float t = u.coreMotionPhase * 1.8f;
+    float activity = clamp(u.coreMotionIntensity, 0.0f, 1.5f);
+    float churn = 0.30f + activity * 0.55f;
+    float3 q = n;
+    q.xy += churn * float2(sin(n.y * 2.7f + t), cos(n.x * 2.3f - t * 0.73f));
+    float a = sin(q.x * 2.5f + q.y * 1.4f + t * 0.64f);
+    float b = cos(q.y * 2.8f - q.z * 1.8f - t * 0.53f);
+    float c = sin((q.x - q.y) * 2.0f + t * 0.37f);
+    // A faster fourth lobe fades in with activity, breaking the boundary into
+    // extra interleaved patches instead of one smooth flowing seam.
+    float d = sin(q.x * 4.1f - q.y * 3.3f + t * 1.7f) * activity;
+    float mixField = a * 0.52f + b * 0.42f + c * 0.30f + d * 0.34f;
+    float blend = smoothstep(-0.85f, 0.85f, mixField);
+    float3 pigment = mix(u.coreColorA.rgb, u.coreColorB.rgb, blend);
+    float luminous = 0.16f + 0.13f * (0.5f + 0.5f * sin(q.x * 2.0f + q.y * 3.0f - t));
+    return mix(pigment, float3(1.0f, 0.99f, 0.98f), luminous);
+}
+
 fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
                                 constant OrbUniforms &u [[buffer(0)]]) {
     float worldRadius = u.orbRadius * u.coreRadiusRatio * u.idleMotion.z * (1.0f + clamp(u.audioLevel, 0.0f, 1.0f) * u.coreAudioGain);
@@ -287,6 +312,15 @@ fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
     float2 p = float2(in.uv.x * u.aspect, in.uv.y) / max(ndcRadius, 0.0001f);
     float radius = length(p);
     if (radius > 1.65f) { discard_fragment(); }
+    if (u.idleMotion.w > 0.5f) {
+        float3 n = normalize(float3(p, 0.55f));
+        float3 tint = u.idleMotion.w < 1.5f ? plasmaColor(n, u) : coreRegionColor(n, u);
+        float width = u.idleMotion.w < 1.5f ? 0.24f : 0.32f;
+        float halo = exp(-pow((radius - 0.94f) / width, 2.0f));
+        float alpha = halo * (0.18f + u.audioLevel * 0.025f)
+                    * (1.0f - smoothstep(1.35f, 1.65f, radius));
+        return float4(tint, alpha);
+    }
     // White bloom, independent of the selected emotion pigments.
     float3 tint = float3(1.0f);
     float falloff = exp(-pow(max(radius - 0.76f, 0.0f) / 0.43f, 2.0f));
@@ -372,10 +406,25 @@ fragment CoreFragmentOut orbCoreFragment(CoreVertexOut in [[stage_in]],
     shade = mix(shade, float3(1.0f), rimBand * rimLight);
     shade *= mix(1.0f - u.coreEdgeDarkening, 1.0f, sqrt(z));
 
+    if (u.idleMotion.w > 0.5f) {
+        bool plasma = u.idleMotion.w < 1.5f;
+        float3 pigment = plasma ? plasmaColor(n, u) : base;
+        // Broad reflection and a smaller soft highlight convey a curved surface.
+        float lighting = mix(plasma ? 0.69f : 0.72f, 1.0f, wrapped);
+        shade = pigment * lighting;
+        float softbox = pow(ndoth, 19.0f) * (plasma ? 0.27f : 0.43f)
+                      + pow(ndoth, 65.0f) * (plasma ? 0.10f : 0.18f);
+        shade = mix(shade, float3(1.0f, 0.995f, 0.985f), softbox);
+        shade *= 1.0f - opposite * 0.13f;
+        // Colour-bearing grazing light, without a white contour stripe.
+        float grazing = pow(1.0f - z, 3.0f) * (0.035f + 0.06f * saturate(ndotl));
+        shade += pigment * grazing;
+    }
+
     // A small diffuse silhouette roll-off is resolved analytically, not via
     // a full-view blur that would soften the outer particles as well.
     float radial = sqrt(r2);
-    float edge = max(fwidth(radial) * 1.5f, 0.14f);
+    float edge = max(fwidth(radial) * 1.5f, u.idleMotion.w > 0.5f ? 0.018f : 0.14f);
     float alpha = 1.0f - smoothstep(1.0f - edge, 1.0f, radial);
 
     // Real depth, so the sphere occludes rear particles instead of the whole scene.

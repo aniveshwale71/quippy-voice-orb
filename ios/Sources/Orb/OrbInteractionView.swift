@@ -5,7 +5,7 @@ import simd
 /// An `MTKView` that reports touches in the orb's own normalized space:
 /// a -1...1 square with y pointing up. Because nothing leaves this class in
 /// points, gestures behave identically whatever size the component is given.
-final class OrbInteractionView: MTKView {
+final class OrbInteractionView: MTKView, UIGestureRecognizerDelegate {
 
     var onTap: ((SIMD2<Float>) -> Void)?
     var onDragBegan: ((SIMD2<Float>) -> Void)?
@@ -25,10 +25,12 @@ final class OrbInteractionView: MTKView {
         isUserInteractionEnabled = true
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tap.delegate = self
         addGestureRecognizer(tap)
 
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
         pan.maximumNumberOfTouches = 1
+        pan.delegate = self
         addGestureRecognizer(pan)
 
         let center = NotificationCenter.default
@@ -38,6 +40,12 @@ final class OrbInteractionView: MTKView {
                            name: UIApplication.willEnterForegroundNotification, object: nil)
         center.addObserver(self, selector: #selector(reduceMotionChanged),
                            name: UIAccessibility.reduceMotionStatusDidChangeNotification, object: nil)
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let point = normalized(touch.location(in: self))
+        // Sphere occupies 63% of the canvas; retain a little interaction margin.
+        return simd_length(point) < 0.73
     }
 
     required init(coder: NSCoder) {

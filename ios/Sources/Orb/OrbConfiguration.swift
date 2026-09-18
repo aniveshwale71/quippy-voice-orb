@@ -7,6 +7,10 @@ import simd
 /// UI — the host owns it.
 public struct OrbConfiguration: Equatable {
 
+    /// Local comparison material. Particle simulation is identical for every material.
+    public var material: OrbMaterial = .baseline
+    public var renderingEnabled: Bool = true
+
     // MARK: Layout
 
     /// Fraction of the (square) orb canvas that the particle sphere's diameter
@@ -239,5 +243,17 @@ public enum OrbPalette {
 
     private static func rgb(_ hex: UInt32) -> SIMD3<Float> {
         SIMD3(Float((hex >> 16) & 255), Float((hex >> 8) & 255), Float(hex & 255)) / 255
+    }
+}
+
+public enum OrbMaterial: Int, CaseIterable, Identifiable {
+    case baseline, plasma, refinedGlass
+    public var id: Int { rawValue }
+    public var title: String {
+        switch self {
+        case .baseline: return "Current orb"
+        case .plasma: return "Plasma interior"
+        case .refinedGlass: return "Refined glass"
+        }
     }
 }

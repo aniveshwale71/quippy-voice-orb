@@ -18,6 +18,14 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 
 The browser is a WebGL adaptation, not an execution of the Metal renderer. The shader colour field and lighting follow the native prototype. The browser gesture response uses a lightweight ripple and rotation; the native version includes the full particle spring simulation. Browser and native text-to-speech voices can differ.
 
+## Three variants
+
+Use the page dots or swipe beside the orb to compare Current orb, Plasma interior, and Refined glass. Dragging on the orb keeps its rotation interaction. Colours and audio controls are shared.
+
+The Plasma interior includes the latest native update: audio/state activity increases colour deformation and introduces additional interleaved colour patches. Refined glass keeps the original colour field with clearer reflections, a defined contour, and a separate tinted halo. The Plasma material is an original native interpretation of the VoiceOrbs reference, not a literal port of its shader.
+
+The browser implements the corresponding material formulas in WebGL. Native and browser gesture simulations remain different as described above.
+
 ## Latest native version
 
 The iOS source and downloadable ZIP include 2,000 particles (1,000 per colour), a continuous idle ripple at 25% of tap force, and synchronized 3% core breathing over 4.8 seconds. The browser preview includes matching 4.8-second breathing and a gentler idle surface ripple, using its lightweight displacement model. Automatic Git deployments to Vercel are disabled; publishing remains an explicit step.

@@ -1,3 +1,9 @@
+# Native three-variant playground
+
+Open VoiceOrbPlayground.xcodeproj and run the VoiceOrbPlayground scheme. Swipe beside the orb or tap a page dot to compare Current orb, Plasma interior, and Refined glass. Dragging on the orb preserves its gesture interaction. Audio controls and colour selections are shared.
+
+The Plasma shader includes activity-dependent colour churning and interleaving. Launch with -orbVariant 0, 1, or 2 to select an initial material. Actual touch interaction verification was previously blocked by simulator UI automation timeouts; a successful build is not a touch-test result.
+
 # Quippy Voice Orb
 
 A standalone interactive voice-orb prototype, with a browser preview and the native SwiftUI + Metal iPhone source.

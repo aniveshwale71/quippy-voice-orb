@@ -226,7 +226,7 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
             coreLightDirection: SIMD4(normalize(c.coreLightDirection), 0),
             idleMotion: SIMD4(idlePhase, c.tapStrength * 0.25 * idleBlend,
                               1 + 0.03 * (0.5 - 0.5 * cos(idlePhase)) * idleBlend
-                                * ((reduceMotionEnabled && configuration.respectsReduceMotion) ? c.reducedMotionScale : 1), 0),
+                                * ((reduceMotionEnabled && configuration.respectsReduceMotion) ? c.reducedMotionScale : 1), Float(c.material.rawValue)),
             time: clock.time,
             deltaTime: clock.deltaTime,
             orbRadius: 1,

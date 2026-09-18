@@ -6,3 +6,12 @@ body{background:#f5f3ef}main{max-width:1040px;grid-template-columns:clamp(270px,
 @media(max-width:760px){main{display:flex;flex-direction:column;padding:0 16px;gap:34px;margin-top:12px}.device-preview{max-width:422px}.phone{border-radius:58px;padding:8px}.phone-screen{border-radius:50px}.preview-info{width:100%;max-width:402px;padding:0 8px}.phone .canvas-wrap{max-width:none}.phone .visual{width:100%}.phone .controls{max-width:none}.preview-info h1{font-size:28px}.device-caption{font-size:10px}footer{margin:0 16px}}
 
 .phone{container-type:inline-size;border-radius:15% / 7%;padding:8px}.phone-screen{border-radius:13% / 6%}
+
+/* Three-material comparison; leave the audio and colour controls shared. */
+.phone .visual{height:49%;top:7%}
+.variant-picker{position:absolute;top:54%;left:7%;width:86%;text-align:center}
+.variant-picker p{font-size:3.5cqw;margin:0 0 1cqw;font-weight:550}
+.variant-pages{display:flex;justify-content:center;gap:1.8cqw;align-items:center}
+.variant-pages button{border:0;background:transparent;color:#aaa;padding:1cqw 2cqw;font-size:3cqw;min-height:7cqw}
+.variant-pages button[aria-pressed=true]{color:#292724}
+.variant-pages #variant-prev,.variant-pages #variant-next{font-size:5cqw;color:#5a5753}
