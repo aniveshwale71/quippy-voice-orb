@@ -1,0 +1,1 @@
+{"name":"quippy-voice-orb","private":true,"version":"1.0.0","scripts":{"start":"python3 -m http.server 4173 --directory web","check":"node --check web/orb.js"}}

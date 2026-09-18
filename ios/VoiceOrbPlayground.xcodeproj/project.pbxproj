@@ -1,0 +1,537 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		05A4928144E45F64762A0FAD /* OrbTestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4DBD9CBCC0A01F3DAE7DA7 /* OrbTestScreen.swift */; };
+		0C9D20102DF14A6F76E632AE /* OrbRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D97056671D0F0399601D35 /* OrbRenderer.swift */; };
+		3AAA8030B10EACC238E655E7 /* SpeechSampleGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6C17FCD5B2F714921D696AC /* SpeechSampleGenerator.swift */; };
+		3F20D9B40DE4A315DBA3EA72 /* OrbGestureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1F431D82743C0CAE2151AD /* OrbGestureState.swift */; };
+		43BF36E0C0842411AF1E6B19 /* OrbConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE43FA3E854B7620F27E30B /* OrbConfiguration.swift */; };
+		4AB826128C2D72DE4C1DEAD5 /* OrbAudioProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285211B4016D81B06DEDCB4 /* OrbAudioProviding.swift */; };
+		4BF7AAB72B489E3143253CC8 /* AnimationClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAD3BEB6C82D6EBD64646E9 /* AnimationClock.swift */; };
+		6718593F322F3086EE3FF2AD /* MicrophoneListeningSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F97C0669AF0E4F55B465C2 /* MicrophoneListeningSource.swift */; };
+		76124054DCFED5BA1E9503BE /* OrbAudioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478A2470488006CE1070A095 /* OrbAudioTests.swift */; };
+		772C44803CE9D1E4EABCF294 /* OrbParticleSeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91073E07FE839BEC9168565B /* OrbParticleSeeds.swift */; };
+		8F89568E716B69388F866E5C /* OrbState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBFB70E014E56309D7F83D6 /* OrbState.swift */; };
+		A2808E6F89CDBE28C8C14488 /* OrbAudioRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6941D4CF3B707BAE5BFB95E5 /* OrbAudioRouter.swift */; };
+		A5C76B689B2F68C5DB14A59B /* SpeechPlaybackSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83966FFFB3436BA912044E62 /* SpeechPlaybackSource.swift */; };
+		AFB29D744E0EE62B823993D9 /* OrbEnvelopeFollower.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C547A5B463B456482155D /* OrbEnvelopeFollower.swift */; };
+		B6FC61D15B55D8DA44082305 /* Orb.metal in Sources */ = {isa = PBXBuildFile; fileRef = 020F512528CF0277CA2286A2 /* Orb.metal */; };
+		C9B5B247B63BCF5BFC1BE5E1 /* VoiceOrbPlaygroundApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB02CE222EFC4E874DCB088F /* VoiceOrbPlaygroundApp.swift */; };
+		DA81F418D8563B7119171BD9 /* SimulatedSpeechSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6820E2C606163D8D6FA167 /* SimulatedSpeechSource.swift */; };
+		E16018F43B9842988371D85A /* MatrixMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF82C2C729FF0EFA7A9B4F5 /* MatrixMath.swift */; };
+		EB23FF6D8D0E60B817B19E50 /* AudioEnvelopeTrack.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2EB093F3052099503947DCC /* AudioEnvelopeTrack.swift */; };
+		F240EA3902F87D1882ED2144 /* OrbInteractionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D6D5872D6B880351BC59B4B /* OrbInteractionView.swift */; };
+		F2F3F57D8F62CF998C2C3DFB /* VoiceOrbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE93AEC823A77E2D2C1A7D63 /* VoiceOrbView.swift */; };
+		F7FD337AB488194A2D69F0B6 /* SeededGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E99B9B6ECD3C223421D664 /* SeededGenerator.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1CE7A8871AF4CB8A3DFAABB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 22392E1F8D87622E99B09C1B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 61C8BEA88C31A723E8E37A71;
+			remoteInfo = VoiceOrbPlayground;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		020F512528CF0277CA2286A2 /* Orb.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Orb.metal; sourceTree = "<group>"; };
+		0E1F431D82743C0CAE2151AD /* OrbGestureState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbGestureState.swift; sourceTree = "<group>"; };
+		2D6D5872D6B880351BC59B4B /* OrbInteractionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbInteractionView.swift; sourceTree = "<group>"; };
+		2DAD3BEB6C82D6EBD64646E9 /* AnimationClock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationClock.swift; sourceTree = "<group>"; };
+		2FBFB70E014E56309D7F83D6 /* OrbState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbState.swift; sourceTree = "<group>"; };
+		478A2470488006CE1070A095 /* OrbAudioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbAudioTests.swift; sourceTree = "<group>"; };
+		4AE43FA3E854B7620F27E30B /* OrbConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbConfiguration.swift; sourceTree = "<group>"; };
+		4DF82C2C729FF0EFA7A9B4F5 /* MatrixMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixMath.swift; sourceTree = "<group>"; };
+		5B6820E2C606163D8D6FA167 /* SimulatedSpeechSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedSpeechSource.swift; sourceTree = "<group>"; };
+		6941D4CF3B707BAE5BFB95E5 /* OrbAudioRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbAudioRouter.swift; sourceTree = "<group>"; };
+		69D97056671D0F0399601D35 /* OrbRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbRenderer.swift; sourceTree = "<group>"; };
+		83966FFFB3436BA912044E62 /* SpeechPlaybackSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechPlaybackSource.swift; sourceTree = "<group>"; };
+		90F97C0669AF0E4F55B465C2 /* MicrophoneListeningSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneListeningSource.swift; sourceTree = "<group>"; };
+		91073E07FE839BEC9168565B /* OrbParticleSeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbParticleSeeds.swift; sourceTree = "<group>"; };
+		98EE8CE9C604FFEB315C316C /* VoiceOrbPlayground.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceOrbPlayground.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A25C547A5B463B456482155D /* OrbEnvelopeFollower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbEnvelopeFollower.swift; sourceTree = "<group>"; };
+		A5E99B9B6ECD3C223421D664 /* SeededGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededGenerator.swift; sourceTree = "<group>"; };
+		B285211B4016D81B06DEDCB4 /* OrbAudioProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbAudioProviding.swift; sourceTree = "<group>"; };
+		BE4DBD9CBCC0A01F3DAE7DA7 /* OrbTestScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbTestScreen.swift; sourceTree = "<group>"; };
+		BE93AEC823A77E2D2C1A7D63 /* VoiceOrbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOrbView.swift; sourceTree = "<group>"; };
+		CB02CE222EFC4E874DCB088F /* VoiceOrbPlaygroundApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceOrbPlaygroundApp.swift; sourceTree = "<group>"; };
+		D6C17FCD5B2F714921D696AC /* SpeechSampleGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSampleGenerator.swift; sourceTree = "<group>"; };
+		E2EB093F3052099503947DCC /* AudioEnvelopeTrack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEnvelopeTrack.swift; sourceTree = "<group>"; };
+		EAADD9FC2EB79E568676BCFC /* OrbShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrbShaderTypes.h; sourceTree = "<group>"; };
+		EB37A68D11ED70895F566BA0 /* VoiceOrbPlaygroundTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoiceOrbPlaygroundTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1AE375C2115E8AFBF1E8799F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				98EE8CE9C604FFEB315C316C /* VoiceOrbPlayground.app */,
+				EB37A68D11ED70895F566BA0 /* VoiceOrbPlaygroundTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5B0174F07C6B5159F8B7D8AA /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				020F512528CF0277CA2286A2 /* Orb.metal */,
+				EAADD9FC2EB79E568676BCFC /* OrbShaderTypes.h */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
+		7A11E9680FD78EBFEC029930 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				478A2470488006CE1070A095 /* OrbAudioTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		AB207389A5D6715ADBB028C8 /* Orb */ = {
+			isa = PBXGroup;
+			children = (
+				B285211B4016D81B06DEDCB4 /* OrbAudioProviding.swift */,
+				4AE43FA3E854B7620F27E30B /* OrbConfiguration.swift */,
+				0E1F431D82743C0CAE2151AD /* OrbGestureState.swift */,
+				2D6D5872D6B880351BC59B4B /* OrbInteractionView.swift */,
+				91073E07FE839BEC9168565B /* OrbParticleSeeds.swift */,
+				69D97056671D0F0399601D35 /* OrbRenderer.swift */,
+				2FBFB70E014E56309D7F83D6 /* OrbState.swift */,
+				BE93AEC823A77E2D2C1A7D63 /* VoiceOrbView.swift */,
+			);
+			path = Orb;
+			sourceTree = "<group>";
+		};
+		C5D28991D67489216E736F82 = {
+			isa = PBXGroup;
+			children = (
+				5B0174F07C6B5159F8B7D8AA /* Shaders */,
+				F3FE237D42FD19997FBC8430 /* Sources */,
+				7A11E9680FD78EBFEC029930 /* Tests */,
+				1AE375C2115E8AFBF1E8799F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E3CEA974579D7ECB4538A693 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				2DAD3BEB6C82D6EBD64646E9 /* AnimationClock.swift */,
+				4DF82C2C729FF0EFA7A9B4F5 /* MatrixMath.swift */,
+				A5E99B9B6ECD3C223421D664 /* SeededGenerator.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		E952BBA1CD2C71F948EFB03F /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				E2EB093F3052099503947DCC /* AudioEnvelopeTrack.swift */,
+				90F97C0669AF0E4F55B465C2 /* MicrophoneListeningSource.swift */,
+				6941D4CF3B707BAE5BFB95E5 /* OrbAudioRouter.swift */,
+				A25C547A5B463B456482155D /* OrbEnvelopeFollower.swift */,
+				83966FFFB3436BA912044E62 /* SpeechPlaybackSource.swift */,
+				D6C17FCD5B2F714921D696AC /* SpeechSampleGenerator.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		F3FE237D42FD19997FBC8430 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				FE9ADBBF13E4C1E98D94ECE9 /* App */,
+				E952BBA1CD2C71F948EFB03F /* Audio */,
+				AB207389A5D6715ADBB028C8 /* Orb */,
+				E3CEA974579D7ECB4538A693 /* Support */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		FE9ADBBF13E4C1E98D94ECE9 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BE4DBD9CBCC0A01F3DAE7DA7 /* OrbTestScreen.swift */,
+				5B6820E2C606163D8D6FA167 /* SimulatedSpeechSource.swift */,
+				CB02CE222EFC4E874DCB088F /* VoiceOrbPlaygroundApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		41C7A28C7785C096CA6A412C /* VoiceOrbPlaygroundTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 30E9A65679870AB28DC7CF63 /* Build configuration list for PBXNativeTarget "VoiceOrbPlaygroundTests" */;
+			buildPhases = (
+				16D208B8E465F940739E799B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E4ACDEFCEAF7B19CA4D5A0D0 /* PBXTargetDependency */,
+			);
+			name = VoiceOrbPlaygroundTests;
+			packageProductDependencies = (
+			);
+			productName = VoiceOrbPlaygroundTests;
+			productReference = EB37A68D11ED70895F566BA0 /* VoiceOrbPlaygroundTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		61C8BEA88C31A723E8E37A71 /* VoiceOrbPlayground */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3FBEEE20A94DCCA5A1F429AC /* Build configuration list for PBXNativeTarget "VoiceOrbPlayground" */;
+			buildPhases = (
+				B517AE9D69628C205EB1393F /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoiceOrbPlayground;
+			packageProductDependencies = (
+			);
+			productName = VoiceOrbPlayground;
+			productReference = 98EE8CE9C604FFEB315C316C /* VoiceOrbPlayground.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		22392E1F8D87622E99B09C1B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					41C7A28C7785C096CA6A412C = {
+						ProvisioningStyle = Automatic;
+					};
+					61C8BEA88C31A723E8E37A71 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = C54659E5B9249DB58DF52C62 /* Build configuration list for PBXProject "VoiceOrbPlayground" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C5D28991D67489216E736F82;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1AE375C2115E8AFBF1E8799F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				61C8BEA88C31A723E8E37A71 /* VoiceOrbPlayground */,
+				41C7A28C7785C096CA6A412C /* VoiceOrbPlaygroundTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		16D208B8E465F940739E799B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				76124054DCFED5BA1E9503BE /* OrbAudioTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B517AE9D69628C205EB1393F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4BF7AAB72B489E3143253CC8 /* AnimationClock.swift in Sources */,
+				EB23FF6D8D0E60B817B19E50 /* AudioEnvelopeTrack.swift in Sources */,
+				E16018F43B9842988371D85A /* MatrixMath.swift in Sources */,
+				6718593F322F3086EE3FF2AD /* MicrophoneListeningSource.swift in Sources */,
+				B6FC61D15B55D8DA44082305 /* Orb.metal in Sources */,
+				4AB826128C2D72DE4C1DEAD5 /* OrbAudioProviding.swift in Sources */,
+				A2808E6F89CDBE28C8C14488 /* OrbAudioRouter.swift in Sources */,
+				43BF36E0C0842411AF1E6B19 /* OrbConfiguration.swift in Sources */,
+				AFB29D744E0EE62B823993D9 /* OrbEnvelopeFollower.swift in Sources */,
+				3F20D9B40DE4A315DBA3EA72 /* OrbGestureState.swift in Sources */,
+				F240EA3902F87D1882ED2144 /* OrbInteractionView.swift in Sources */,
+				772C44803CE9D1E4EABCF294 /* OrbParticleSeeds.swift in Sources */,
+				0C9D20102DF14A6F76E632AE /* OrbRenderer.swift in Sources */,
+				8F89568E716B69388F866E5C /* OrbState.swift in Sources */,
+				05A4928144E45F64762A0FAD /* OrbTestScreen.swift in Sources */,
+				F7FD337AB488194A2D69F0B6 /* SeededGenerator.swift in Sources */,
+				DA81F418D8563B7119171BD9 /* SimulatedSpeechSource.swift in Sources */,
+				A5C76B689B2F68C5DB14A59B /* SpeechPlaybackSource.swift in Sources */,
+				3AAA8030B10EACC238E655E7 /* SpeechSampleGenerator.swift in Sources */,
+				C9B5B247B63BCF5BFC1BE5E1 /* VoiceOrbPlaygroundApp.swift in Sources */,
+				F2F3F57D8F62CF998C2C3DFB /* VoiceOrbView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E4ACDEFCEAF7B19CA4D5A0D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 61C8BEA88C31A723E8E37A71 /* VoiceOrbPlayground */;
+			targetProxy = A1CE7A8871AF4CB8A3DFAABB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1A13E680D45397FD70DC232F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Voice Orb";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The voice orb prototype uses the microphone only to visualise how loud you are speaking. No audio is recorded, stored, or sent anywhere.";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.quippyapp.prototype.voiceorb;
+				PRODUCT_NAME = VoiceOrbPlayground;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = Shaders/OrbShaderTypes.h;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6AE9BE3C90BE8DD2E44A7A84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		6F2696905B035AF095779A89 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Voice Orb";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The voice orb prototype uses the microphone only to visualise how loud you are speaking. No audio is recorded, stored, or sent anywhere.";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarHidden = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.quippyapp.prototype.voiceorb;
+				PRODUCT_NAME = VoiceOrbPlayground;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = Shaders/OrbShaderTypes.h;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		85CCA61DB0EBBD04C71B8053 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		BECFD31F22754A483DAAB394 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.quippyapp.prototype.voiceorb.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceOrbPlayground.app/VoiceOrbPlayground";
+			};
+			name = Release;
+		};
+		F28A453EECD4FDC61DE0B09D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.quippyapp.prototype.voiceorb.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceOrbPlayground.app/VoiceOrbPlayground";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		30E9A65679870AB28DC7CF63 /* Build configuration list for PBXNativeTarget "VoiceOrbPlaygroundTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F28A453EECD4FDC61DE0B09D /* Debug */,
+				BECFD31F22754A483DAAB394 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3FBEEE20A94DCCA5A1F429AC /* Build configuration list for PBXNativeTarget "VoiceOrbPlayground" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F2696905B035AF095779A89 /* Debug */,
+				1A13E680D45397FD70DC232F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C54659E5B9249DB58DF52C62 /* Build configuration list for PBXProject "VoiceOrbPlayground" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85CCA61DB0EBBD04C71B8053 /* Debug */,
+				6AE9BE3C90BE8DD2E44A7A84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 22392E1F8D87622E99B09C1B /* Project object */;
+}

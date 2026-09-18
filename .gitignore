@@ -1,0 +1,7 @@
+.vercel/
+.DS_Store
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+node_modules/
