@@ -168,7 +168,7 @@ kernel void orbParticleUpdate(device const OrbParticleSeed *seeds   [[buffer(0)]
     OrbParticleRender r;
     r.positionSize = float4(world, max(pixelSize, 0.75f));
     // Alternating Fibonacci identities each cover the entire sphere evenly.
-    // Stable IDs preserve an exact 50/50 split for the default 4800 dots.
+    // Stable IDs preserve an exact 50/50 split for the default 3840 dots.
     float3 tint = (id & 1u) == 0u ? u.particleColorA.rgb : u.particleColorB.rgb;
     r.tint = float4(tint, alpha);
     out[id] = r;
@@ -189,7 +189,8 @@ vertex ParticleVertexOut orbParticleVertex(device const OrbParticleRender *parti
     OrbParticleRender p = particles[id];
     ParticleVertexOut out;
     out.position = u.viewProjection * float4(p.positionSize.xyz, 1.0f);
-    out.pointSize = p.positionSize.w;
+    // Reserve sprite space for a soft halo without enlarging the dot core.
+    out.pointSize = p.positionSize.w * 2.0f;
     out.tint = p.tint;
     return out;
 }
@@ -198,11 +199,19 @@ fragment float4 orbParticleFragment(ParticleVertexOut in [[stage_in]],
                                     float2 pointCoord [[point_coord]])
 {
     float d = length(pointCoord - float2(0.5f));
-    // Antialias against the point's own footprint so small dots stay crisp.
-    float edge = fwidth(d);
-    float mask = 1.0f - smoothstep(0.5f - edge, 0.5f, d);
-    if (mask <= 0.0f) { discard_fragment(); }
-    return float4(in.tint.rgb, in.tint.a * mask);
+    // The original dot occupies the central half of this enlarged sprite.
+    // Feather its edge, then blend a restrained colour-matched halo around it.
+    float edge = max(fwidth(d), 0.055f);
+    // Double the previous transition width, retaining the outer dot radius.
+    float featherWidth = 2.0f * (0.27f - max(0.25f - edge, 0.10f));
+    float core = 1.0f - smoothstep(0.27f - featherWidth, 0.27f, d);
+    float halo = 0.40f * exp(-12.0f * d * d)
+        * (1.0f - smoothstep(0.36f, 0.5f, d));
+    float mask = core + halo * (1.0f - core);
+    if (mask <= 0.001f) { discard_fragment(); }
+    float3 haloTint = mix(in.tint.rgb, float3(1.0f), 0.28f);
+    float3 tint = mix(haloTint, in.tint.rgb, core);
+    return float4(tint, in.tint.a * mask);
 }
 
 // MARK: - Inner core

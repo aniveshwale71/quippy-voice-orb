@@ -21,13 +21,13 @@ public struct OrbConfiguration: Equatable {
 
     // MARK: Particles
 
-    public var particleCount: Int = 4800
+    public var particleCount: Int = 3840
 
     /// Random seed for particle identities. Fixed so runs are comparable.
     public var particleSeed: UInt64 = 0x51EE_D0_0B
 
     /// World-space diameter of one particle, relative to an orb radius of 1.
-    public var particlePointSize: Float = 0.0118 / 0.85  // Preserve individual dot size.
+    public var particlePointSize: Float = (0.0118 / 0.85) * 1.5  // Enlarge individual dots by 50%.
 
     /// Shell thickness as a fraction of the orb radius.
     public var shellThickness: Float = 0.055
