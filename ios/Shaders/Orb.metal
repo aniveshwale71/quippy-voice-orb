@@ -168,7 +168,7 @@ kernel void orbParticleUpdate(device const OrbParticleSeed *seeds   [[buffer(0)]
     OrbParticleRender r;
     r.positionSize = float4(world, max(pixelSize, 0.75f));
     // Alternating Fibonacci identities each cover the entire sphere evenly.
-    // Stable IDs preserve an exact 50/50 split for the default 2880 dots.
+    // Stable IDs preserve an exact 50/50 split for the default 1600 dots.
     float3 tint = (id & 1u) == 0u ? u.particleColorA.rgb : u.particleColorB.rgb;
     r.tint = float4(tint, alpha);
     out[id] = r;
