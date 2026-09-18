@@ -21,7 +21,7 @@ public struct OrbConfiguration: Equatable {
 
     // MARK: Particles
 
-    public var particleCount: Int = 3840
+    public var particleCount: Int = 2880
 
     /// Random seed for particle identities. Fixed so runs are comparable.
     public var particleSeed: UInt64 = 0x51EE_D0_0B
