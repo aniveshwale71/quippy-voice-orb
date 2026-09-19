@@ -40,7 +40,7 @@ struct OrbTestScreen: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
                 VStack(spacing: 8) {
-                    Text("\(selectedMaterial.rawValue + 1) / 3 · \(selectedMaterial.title)")
+                    Text("\(selectedMaterial.rawValue + 1) / \(OrbMaterial.allCases.count) · \(selectedMaterial.title)")
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .accessibilityIdentifier("orbVariantTitle")
                     HStack(spacing: 12) {

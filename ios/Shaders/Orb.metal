@@ -314,8 +314,9 @@ fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
     if (radius > 1.65f) { discard_fragment(); }
     if (u.idleMotion.w > 0.5f) {
         float3 n = normalize(float3(p, 0.55f));
-        float3 tint = u.idleMotion.w < 1.5f ? plasmaColor(n, u) : coreRegionColor(n, u);
-        float width = u.idleMotion.w < 1.5f ? 0.24f : 0.32f;
+        float glassBlend = u.idleMotion.w > 2.5f ? 0.5f : (u.idleMotion.w < 1.5f ? 0.0f : 1.0f);
+        float3 tint = mix(plasmaColor(n, u), coreRegionColor(n, u), glassBlend);
+        float width = mix(0.24f, 0.32f, glassBlend);
         float halo = exp(-pow((radius - 0.94f) / width, 2.0f));
         float alpha = halo * (0.18f + u.audioLevel * 0.025f)
                     * (1.0f - smoothstep(1.35f, 1.65f, radius));
@@ -407,13 +408,14 @@ fragment CoreFragmentOut orbCoreFragment(CoreVertexOut in [[stage_in]],
     shade *= mix(1.0f - u.coreEdgeDarkening, 1.0f, sqrt(z));
 
     if (u.idleMotion.w > 0.5f) {
-        bool plasma = u.idleMotion.w < 1.5f;
-        float3 pigment = plasma ? plasmaColor(n, u) : base;
+        // The fourth material sits halfway between the two existing interiors.
+        float glassBlend = u.idleMotion.w > 2.5f ? 0.5f : (u.idleMotion.w < 1.5f ? 0.0f : 1.0f);
+        float3 pigment = mix(plasmaColor(n, u), base, glassBlend);
         // Broad reflection and a smaller soft highlight convey a curved surface.
-        float lighting = mix(plasma ? 0.69f : 0.72f, 1.0f, wrapped);
+        float lighting = mix(mix(0.69f, 0.72f, glassBlend), 1.0f, wrapped);
         shade = pigment * lighting;
-        float softbox = pow(ndoth, 19.0f) * (plasma ? 0.27f : 0.43f)
-                      + pow(ndoth, 65.0f) * (plasma ? 0.10f : 0.18f);
+        float softbox = pow(ndoth, 19.0f) * mix(0.27f, 0.43f, glassBlend)
+                      + pow(ndoth, 65.0f) * mix(0.10f, 0.18f, glassBlend);
         shade = mix(shade, float3(1.0f, 0.995f, 0.985f), softbox);
         shade *= 1.0f - opposite * 0.13f;
         // Colour-bearing grazing light, without a white contour stripe.

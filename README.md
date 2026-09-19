@@ -10,7 +10,7 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 - 1.5× dot size, soft colour-matched particle halos, and doubled edge feathering.
 - Five-position colour sliders, darker particle shades, softened 500 pigments.
 - Glassier upper-left reflection, thin luminous rim, reduced white haze, and colour swirling during speech.
-- Inner core diameter is 85% of the nominal outer sphere diameter.
+- Inner core diameter is 65.025% of the nominal outer sphere diameter.
 - A bundled synthetic sample, measured during playback using Web Audio.
 - Live microphone response, tap ripple and drag rotation.
 - Synchronized idle breathing (3% expansion) and a continuous surface ripple.
@@ -18,9 +18,9 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 
 The browser is a WebGL adaptation, not an execution of the Metal renderer. The shader colour field and lighting follow the native prototype. The browser gesture response uses a lightweight ripple and rotation; the native version includes the full particle spring simulation. Browser and native text-to-speech voices can differ.
 
-## Three variants
+## Four variants
 
-Use the page dots or swipe beside the orb to compare Current orb, Plasma interior, and Refined glass. Dragging on the orb keeps its rotation interaction. Colours and audio controls are shared.
+Use the page dots or swipe beside the orb to compare Current orb, Plasma interior, Refined glass, and Plasma glass. Dragging on the orb keeps its rotation interaction. Colours and audio controls are shared.
 
 The Plasma interior includes the latest native update: audio/state activity increases colour deformation and introduces additional interleaved colour patches. Refined glass keeps the original colour field with clearer reflections, a defined contour, and a separate tinted halo. The Plasma material is an original native interpretation of the VoiceOrbs reference, not a literal port of its shader.
 
@@ -52,9 +52,9 @@ On the current iPhone 17 Pro simulator (402 × 874 logical points), with suffici
 |---|---:|---:|
 | Square rendering canvas | 369.84 × 369.84 | 1109.52 × 1109.52 |
 | Nominal outer particle diameter | 232.62936 | 697.88808 |
-| Inner core diameter before feathering | 197.734956 | 593.204868 |
+| Inner core diameter before feathering | 151.26724134 | 453.80172402 |
 
-The nominal shell is 62.9% of the canvas; the core is 53.465%. Raster dimensions round to whole pixels. Perspective, shell thickness, stray particles, gestures and speech alter the visible outer bounds; there is no single exact visible diameter for an animated cloud. Glow and edge feathering also have gradual boundaries. Browser measurements are shown in the preview's Dimensions disclosure.
+The nominal shell is 62.9% of the canvas; the core is 40.900725%. Raster dimensions round to whole pixels. Perspective, shell thickness, stray particles, gestures and speech alter the visible outer bounds; there is no single exact visible diameter for an animated cloud. Glow and edge feathering also have gradual boundaries. Browser measurements are shown in the preview's Dimensions disclosure.
 
 ## Source layout
 
@@ -66,3 +66,5 @@ The nominal shell is 62.9% of the canvas; the core is 53.465%. Raster dimensions
 - `ios/Tests/`: native audio and component tests.
 
 This package includes only the standalone orb, not the Quippy production app or backend.
+
+Plasma glass blends the plasma and refined-glass colour fields equally, with midpoint reflection strength and halo width. All four materials share the existing particle, gesture, colour, and audio controls.

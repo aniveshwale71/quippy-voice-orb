@@ -27,7 +27,7 @@ typedef struct {
 
     vector_float4 coreLightDirection;  // xyz unit, w unused
 
-    vector_float4 idleMotion; // x cycle phase, y ripple force, z core scale, w material (0 baseline, 1 plasma, 2 glass)
+    vector_float4 idleMotion; // x cycle phase, y ripple force, z core scale, w material (0 baseline, 1 plasma, 2 glass, 3 plasma glass)
 
     float time;
     float deltaTime;

@@ -19,7 +19,7 @@ public struct OrbConfiguration: Equatable {
     public var sphereFillFraction: Float = 0.74 * 0.85
 
     /// Core diameter as a fraction of the particle-sphere diameter.
-    public var coreRadiusRatio: Float = 0.85  // Inner diameter is 85% of the nominal outer sphere diameter.
+    public var coreRadiusRatio: Float = 0.65025  // Inner diameter is 65.025% of the nominal outer sphere diameter.
 
     public var fieldOfView: Float = .pi / 6  // 30°
 
@@ -247,13 +247,14 @@ public enum OrbPalette {
 }
 
 public enum OrbMaterial: Int, CaseIterable, Identifiable {
-    case baseline, plasma, refinedGlass
+    case baseline, plasma, refinedGlass, plasmaGlass
     public var id: Int { rawValue }
     public var title: String {
         switch self {
         case .baseline: return "Current orb"
         case .plasma: return "Plasma interior"
         case .refinedGlass: return "Refined glass"
+        case .plasmaGlass: return "Plasma glass"
         }
     }
 }

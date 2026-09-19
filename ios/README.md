@@ -1,8 +1,8 @@
-# Native three-variant playground
+# Native four-variant playground
 
-Open VoiceOrbPlayground.xcodeproj and run the VoiceOrbPlayground scheme. Swipe beside the orb or tap a page dot to compare Current orb, Plasma interior, and Refined glass. Dragging on the orb preserves its gesture interaction. Audio controls and colour selections are shared.
+Open VoiceOrbPlayground.xcodeproj and run the VoiceOrbPlayground scheme. Swipe beside the orb or tap a page dot to compare Current orb, Plasma interior, Refined glass, and Plasma glass. Dragging on the orb preserves its gesture interaction. Audio controls and colour selections are shared.
 
-The Plasma shader includes activity-dependent colour churning and interleaving. Launch with -orbVariant 0, 1, or 2 to select an initial material. Actual touch interaction verification was previously blocked by simulator UI automation timeouts; a successful build is not a touch-test result.
+The Plasma shader includes activity-dependent colour churning and interleaving. Launch with -orbVariant 0, 1, 2, or 3 to select an initial material. Actual touch interaction verification was previously blocked by simulator UI automation timeouts; a successful build is not a touch-test result.
 
 # Quippy Voice Orb
 
@@ -17,7 +17,7 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 - 1.5× dot size, soft colour-matched particle halos, and doubled edge feathering.
 - Five-position colour sliders, darker particle shades, softened 500 pigments.
 - Glassier upper-left reflection, thin luminous rim, reduced white haze, and colour swirling during speech.
-- Inner core diameter is 85% of the nominal outer sphere diameter.
+- Inner core diameter is 65.025% of the nominal outer sphere diameter.
 - A bundled synthetic sample, measured during playback using Web Audio.
 - Live microphone response, tap ripple and drag rotation.
 - Reduced-motion support.
@@ -46,9 +46,9 @@ On the current iPhone 17 Pro simulator (402 × 874 logical points), with suffici
 |---|---:|---:|
 | Square rendering canvas | 369.84 × 369.84 | 1109.52 × 1109.52 |
 | Nominal outer particle diameter | 232.62936 | 697.88808 |
-| Inner core diameter before feathering | 197.734956 | 593.204868 |
+| Inner core diameter before feathering | 151.26724134 | 453.80172402 |
 
-The nominal shell is 62.9% of the canvas; the core is 53.465%. Raster dimensions round to whole pixels. Perspective, shell thickness, stray particles, gestures and speech alter the visible outer bounds; there is no single exact visible diameter for an animated cloud. Glow and edge feathering also have gradual boundaries. Browser measurements are shown in the preview's Dimensions disclosure.
+The nominal shell is 62.9% of the canvas; the core is 40.900725%. Raster dimensions round to whole pixels. Perspective, shell thickness, stray particles, gestures and speech alter the visible outer bounds; there is no single exact visible diameter for an animated cloud. Glow and edge feathering also have gradual boundaries. Browser measurements are shown in the preview's Dimensions disclosure.
 
 ## Source layout
 
@@ -60,3 +60,5 @@ The nominal shell is 62.9% of the canvas; the core is 53.465%. Raster dimensions
 - `ios/Tests/`: native audio and component tests.
 
 This package includes only the standalone orb, not the Quippy production app or backend.
+
+Plasma glass blends the plasma and refined-glass colour fields equally, with midpoint reflection strength and halo width. All four materials share the existing particle, gesture, colour, and audio controls.
