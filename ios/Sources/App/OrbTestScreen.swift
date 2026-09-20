@@ -4,6 +4,7 @@ import SwiftUI
 /// the two transport controls. The controls and the permission flow live here,
 /// never in the reusable component.
 struct OrbTestScreen: View {
+    private let displayOrder: [OrbMaterial] = [.flowingPlasmaGlass, .plasma, .refinedGlass, .plasmaGlass, .baseline]
     @State private var selectedMaterial: OrbMaterial = DeveloperOptions.initialMaterial
     @State private var firstColour: Double = 0
     @State private var secondColour: Double = 1
@@ -29,7 +30,7 @@ struct OrbTestScreen: View {
 
             VStack(spacing: 12) {
                 TabView(selection: $selectedMaterial) {
-                    ForEach(OrbMaterial.allCases) { material in
+                    ForEach(displayOrder) { material in
                         GeometryReader { proxy in
                             let side = min(proxy.size.width, proxy.size.height) * 0.92
                             VoiceOrb(configuration: configuration(for: material), audioProvider: host.provider)
@@ -42,11 +43,11 @@ struct OrbTestScreen: View {
                 .tabViewStyle(.page(indexDisplayMode: .never))
 
                 VStack(spacing: 8) {
-                    Text("\(selectedMaterial.rawValue + 1) / \(OrbMaterial.allCases.count) · \(selectedMaterial.title)")
+                    Text("\((displayOrder.firstIndex(of: selectedMaterial) ?? 0) + 1) / \(OrbMaterial.allCases.count) · \(selectedMaterial.title)")
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .accessibilityIdentifier("orbVariantTitle")
                     HStack(spacing: 12) {
-                        ForEach(OrbMaterial.allCases) { material in
+                        ForEach(displayOrder) { material in
                             Button {
                                 withAnimation(.easeInOut(duration: 0.3)) { selectedMaterial = material }
                             } label: {
@@ -198,22 +199,22 @@ struct OrbTestScreen: View {
 
 /// Unordered pairs including matching colours: five colours produce 15 choices.
 private struct OrbColourPair: Identifiable, Equatable {
-    let first: OrbPreviewColour
-    let second: OrbPreviewColour
+    let first: OrbEmotionColour
+    let second: OrbEmotionColour
     var id: String { "\(first.rawValue)-\(second.rawValue)" }
     var title: String { "\(first.rawValue) + \(second.rawValue)" }
 
     static var initial: OrbColourPair {
         let args = ProcessInfo.processInfo.arguments
         if let flag = args.firstIndex(of: "-orbSameColour"), args.indices.contains(flag + 1),
-           let colour = OrbPreviewColour(rawValue: args[flag + 1]) {
+           let colour = OrbEmotionColour(rawValue: args[flag + 1]) {
             return OrbColourPair(first: colour, second: colour)
         }
         return OrbColourPair(first: .yellow, second: .blue)
     }
 
-    static let all: [OrbColourPair] = OrbPreviewColour.allCases.enumerated().flatMap { index, first in
-        OrbPreviewColour.allCases.dropFirst(index).map { second in
+    static let all: [OrbColourPair] = OrbEmotionColour.allCases.enumerated().flatMap { index, first in
+        OrbEmotionColour.allCases.dropFirst(index).map { second in
             OrbColourPair(first: first, second: second)
         }
     }
@@ -354,7 +355,7 @@ enum DeveloperOptions {
         guard let flag = arguments.firstIndex(of: "-orbVariant"),
               arguments.indices.contains(flag + 1),
               let value = Int(arguments[flag + 1]),
-              let material = OrbMaterial(rawValue: value) else { return .baseline }
+              let material = OrbMaterial(rawValue: value) else { return .flowingPlasmaGlass }
         return material
     }
 
@@ -411,6 +412,36 @@ private enum OrbPreviewColour: String, CaseIterable {
         }
     }
 
+    var color: Color {
+        Color(red: Double(pigment.x), green: Double(pigment.y), blue: Double(pigment.z))
+    }
+}
+
+/// Palette scoped to Flowing plasma glass; legacy materials retain their original colours.
+private enum OrbEmotionColour: String, CaseIterable {
+    case yellow = "Joy", blue = "Sadness", green = "Disgust", purple = "Fear", red = "Anger"
+
+    var pigment: SIMD3<Float> {
+        switch self {
+        case .yellow: return SIMD3(255, 216, 61) / 255 // #FFD83D
+        case .blue: return SIMD3(52, 152, 219) / 255 // #3498DB
+        case .green: return SIMD3(120, 184, 74) / 255 // #78B84A
+        case .purple: return SIMD3(168, 120, 209) / 255 // #A878D1
+        case .red: return SIMD3(239, 62, 54) / 255 // #EF3E36
+        }
+    }
+
+    var adjacentPigment: SIMD3<Float> {
+        switch self {
+        case .yellow: return SIMD3(255, 158, 0) / 255
+        case .blue: return SIMD3(88, 101, 242) / 255
+        case .green: return SIMD3(22, 199, 132) / 255
+        case .purple: return SIMD3(236, 72, 153) / 255
+        case .red: return SIMD3(244, 63, 94) / 255
+        }
+    }
+
+    var particle: SIMD3<Float> { pigment * 0.65 }
     var color: Color {
         Color(red: Double(pigment.x), green: Double(pigment.y), blue: Double(pigment.z))
     }
