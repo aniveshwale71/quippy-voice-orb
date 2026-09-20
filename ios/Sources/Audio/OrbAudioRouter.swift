@@ -34,6 +34,7 @@ final class OrbAudioRouter: OrbAudioProviding {
         microphone.stop()
         active = .playback
         playback.play()
+        if playback.status != .playing { active = .none }
     }
 
     func stopPlayback() {

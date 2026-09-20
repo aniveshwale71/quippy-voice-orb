@@ -9,9 +9,11 @@
 /* Begin PBXBuildFile section */
 		05A4928144E45F64762A0FAD /* OrbTestScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4DBD9CBCC0A01F3DAE7DA7 /* OrbTestScreen.swift */; };
 		0C9D20102DF14A6F76E632AE /* OrbRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D97056671D0F0399601D35 /* OrbRenderer.swift */; };
+		0D66B442744F2F13D0B771D2 /* Paper-Shaders.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9DF1FE886B305158A8B40BC1 /* Paper-Shaders.txt */; };
 		3AAA8030B10EACC238E655E7 /* SpeechSampleGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6C17FCD5B2F714921D696AC /* SpeechSampleGenerator.swift */; };
 		3F20D9B40DE4A315DBA3EA72 /* OrbGestureState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1F431D82743C0CAE2151AD /* OrbGestureState.swift */; };
 		43BF36E0C0842411AF1E6B19 /* OrbConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE43FA3E854B7620F27E30B /* OrbConfiguration.swift */; };
+		497131729DCB0A1005349943 /* VoiceOrbs.txt in Resources */ = {isa = PBXBuildFile; fileRef = 92D1473B167CC6E5D4A585DE /* VoiceOrbs.txt */; };
 		4AB826128C2D72DE4C1DEAD5 /* OrbAudioProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285211B4016D81B06DEDCB4 /* OrbAudioProviding.swift */; };
 		4BF7AAB72B489E3143253CC8 /* AnimationClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAD3BEB6C82D6EBD64646E9 /* AnimationClock.swift */; };
 		6718593F322F3086EE3FF2AD /* MicrophoneListeningSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F97C0669AF0E4F55B465C2 /* MicrophoneListeningSource.swift */; };
@@ -20,6 +22,7 @@
 		8F89568E716B69388F866E5C /* OrbState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBFB70E014E56309D7F83D6 /* OrbState.swift */; };
 		A2808E6F89CDBE28C8C14488 /* OrbAudioRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6941D4CF3B707BAE5BFB95E5 /* OrbAudioRouter.swift */; };
 		A5C76B689B2F68C5DB14A59B /* SpeechPlaybackSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83966FFFB3436BA912044E62 /* SpeechPlaybackSource.swift */; };
+		AC79863CB92D4CD046C60355 /* THIRD_PARTY_NOTICES.md in Resources */ = {isa = PBXBuildFile; fileRef = 579F550261FA913735022536 /* THIRD_PARTY_NOTICES.md */; };
 		AFB29D744E0EE62B823993D9 /* OrbEnvelopeFollower.swift in Sources */ = {isa = PBXBuildFile; fileRef = A25C547A5B463B456482155D /* OrbEnvelopeFollower.swift */; };
 		B6FC61D15B55D8DA44082305 /* Orb.metal in Sources */ = {isa = PBXBuildFile; fileRef = 020F512528CF0277CA2286A2 /* Orb.metal */; };
 		C9B5B247B63BCF5BFC1BE5E1 /* VoiceOrbPlaygroundApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB02CE222EFC4E874DCB088F /* VoiceOrbPlaygroundApp.swift */; };
@@ -50,13 +53,16 @@
 		478A2470488006CE1070A095 /* OrbAudioTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbAudioTests.swift; sourceTree = "<group>"; };
 		4AE43FA3E854B7620F27E30B /* OrbConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbConfiguration.swift; sourceTree = "<group>"; };
 		4DF82C2C729FF0EFA7A9B4F5 /* MatrixMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixMath.swift; sourceTree = "<group>"; };
+		579F550261FA913735022536 /* THIRD_PARTY_NOTICES.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = THIRD_PARTY_NOTICES.md; sourceTree = "<group>"; };
 		5B6820E2C606163D8D6FA167 /* SimulatedSpeechSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedSpeechSource.swift; sourceTree = "<group>"; };
 		6941D4CF3B707BAE5BFB95E5 /* OrbAudioRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbAudioRouter.swift; sourceTree = "<group>"; };
 		69D97056671D0F0399601D35 /* OrbRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbRenderer.swift; sourceTree = "<group>"; };
 		83966FFFB3436BA912044E62 /* SpeechPlaybackSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechPlaybackSource.swift; sourceTree = "<group>"; };
 		90F97C0669AF0E4F55B465C2 /* MicrophoneListeningSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneListeningSource.swift; sourceTree = "<group>"; };
 		91073E07FE839BEC9168565B /* OrbParticleSeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbParticleSeeds.swift; sourceTree = "<group>"; };
+		92D1473B167CC6E5D4A585DE /* VoiceOrbs.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = VoiceOrbs.txt; sourceTree = "<group>"; };
 		98EE8CE9C604FFEB315C316C /* VoiceOrbPlayground.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceOrbPlayground.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DF1FE886B305158A8B40BC1 /* Paper-Shaders.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Paper-Shaders.txt"; sourceTree = "<group>"; };
 		A25C547A5B463B456482155D /* OrbEnvelopeFollower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbEnvelopeFollower.swift; sourceTree = "<group>"; };
 		A5E99B9B6ECD3C223421D664 /* SeededGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeededGenerator.swift; sourceTree = "<group>"; };
 		B285211B4016D81B06DEDCB4 /* OrbAudioProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrbAudioProviding.swift; sourceTree = "<group>"; };
@@ -114,11 +120,22 @@
 		C5D28991D67489216E736F82 = {
 			isa = PBXGroup;
 			children = (
+				579F550261FA913735022536 /* THIRD_PARTY_NOTICES.md */,
+				CFF0132638BFAAC8447D0C2D /* Licenses */,
 				5B0174F07C6B5159F8B7D8AA /* Shaders */,
 				F3FE237D42FD19997FBC8430 /* Sources */,
 				7A11E9680FD78EBFEC029930 /* Tests */,
 				1AE375C2115E8AFBF1E8799F /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		CFF0132638BFAAC8447D0C2D /* Licenses */ = {
+			isa = PBXGroup;
+			children = (
+				9DF1FE886B305158A8B40BC1 /* Paper-Shaders.txt */,
+				92D1473B167CC6E5D4A585DE /* VoiceOrbs.txt */,
+			);
+			path = Licenses;
 			sourceTree = "<group>";
 		};
 		E3CEA974579D7ECB4538A693 /* Support */ = {
@@ -191,6 +208,7 @@
 			buildConfigurationList = 3FBEEE20A94DCCA5A1F429AC /* Build configuration list for PBXNativeTarget "VoiceOrbPlayground" */;
 			buildPhases = (
 				B517AE9D69628C205EB1393F /* Sources */,
+				1798425D0DC2C9F178134713 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -239,6 +257,19 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1798425D0DC2C9F178134713 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0D66B442744F2F13D0B771D2 /* Paper-Shaders.txt in Resources */,
+				AC79863CB92D4CD046C60355 /* THIRD_PARTY_NOTICES.md in Resources */,
+				497131729DCB0A1005349943 /* VoiceOrbs.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		16D208B8E465F940739E799B /* Sources */ = {

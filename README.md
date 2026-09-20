@@ -18,9 +18,9 @@ Run `npm start`, then open http://localhost:4173. There is no dependency install
 
 The browser is a WebGL adaptation, not an execution of the Metal renderer. The shader colour field and lighting follow the native prototype. The browser gesture response uses a lightweight ripple and rotation; the native version includes the full particle spring simulation. Browser and native text-to-speech voices can differ.
 
-## Four variants
+## Five variants
 
-Use the page dots or swipe beside the orb to compare Current orb, Plasma interior, Refined glass, and Plasma glass. Dragging on the orb keeps its rotation interaction. Colours and audio controls are shared.
+Use the page dots or swipe beside the orb to compare Current orb, Plasma interior, Refined glass, Plasma glass, and Flowing plasma glass. Dragging on the orb keeps its rotation interaction. Audio controls are shared. Variants 1–4 use two colour sliders; variant five has its own 15-pair grid including five matching-colour choices.
 
 The Plasma interior includes the latest native update: audio/state activity increases colour deformation and introduces additional interleaved colour patches. Refined glass keeps the original colour field with clearer reflections, a defined contour, and a separate tinted halo. The Plasma material is an original native interpretation of the VoiceOrbs reference, not a literal port of its shader.
 
@@ -67,4 +67,12 @@ The nominal shell is 62.9% of the canvas; the core is 40.900725%. Raster dimensi
 
 This package includes only the standalone orb, not the Quippy production app or backend.
 
-Plasma glass blends the plasma and refined-glass colour fields equally, with midpoint reflection strength and halo width. All four materials share the existing particle, gesture, colour, and audio controls.
+Plasma glass blends the plasma and refined-glass colour fields equally, with midpoint reflection strength and halo width. All five materials share the existing particle, gesture, and audio controls.
+
+Flowing plasma glass is a fifth option that preserves the fourth material’s dimensions, lighting, halo, and particles. Only its interior changes: five overlapping colour regions drift independently through a gently swirling field, using shades of the selected two colours. Integrated phase and exponentially smoothed activity keep audio transitions continuous. The ten mixed-colour pairs use this original native/WebGL flow. The five matching-colour pairs and error state use the Paper mesh shader port described below.
+
+## Variant five: latest controls
+
+Choose one of 15 unordered colour pairs, including the five matching-colour choices. Matching-colour pairs use neighbouring hues and the Paper Shaders 0.0.76 mesh motion with VoiceOrbs timing. Preview error shows the rose-red error palette; End error preview restores the selected pair. Audio failures also show the error material. Native playback restores the audio session on every play attempt, and the iOS playground keeps a readable light appearance.
+
+The web demo runs directly in iPhone Safari. The downloadable ZIP contains the full Xcode source project, tests, and shader licence notices; it requires a Mac, Xcode and development signing to install natively. It is not an IPA or TestFlight link. See [third-party notices](ios/THIRD_PARTY_NOTICES.md).

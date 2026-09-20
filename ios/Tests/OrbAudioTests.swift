@@ -1,4 +1,5 @@
 import XCTest
+import AVFoundation
 @testable import VoiceOrbPlayground
 
 /// Focused tests for the parts where a wrong answer is invisible on screen:
@@ -150,5 +151,69 @@ final class OrbParticleSeedTests: XCTestCase {
             XCTAssertLessThanOrEqual(seed.params.x + c.radialAmplitude, c.maxRadius,
                                      "A particle resting past maxRadius would be hauled back by the clamp.")
         }
+    }
+}
+
+/// Reproduces the shared-session handoff that previously left playback unable
+/// to start after microphone stop or backgrounding.
+@MainActor
+final class OrbPlaybackSessionTests: XCTestCase {
+    func testPlaybackRestoresSessionAfterMicrophoneAndCanReplay() async throws {
+        let playback = SpeechPlaybackSource()
+        defer { playback.teardown() }
+        await playback.prepare()
+        XCTAssertEqual(playback.status, .ready)
+        guard playback.canPlay else { return }
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.record, mode: .measurement)
+        try session.setActive(true)
+        try session.setActive(false)
+        playback.play()
+        XCTAssertEqual(session.category, .playback)
+        XCTAssertEqual(playback.status, .playing)
+        playback.stop()
+        try session.setActive(false)
+        XCTAssertTrue(playback.canPlay)
+        playback.play()
+        XCTAssertEqual(playback.status, .playing)
+    }
+}
+
+
+final class ReferencePlasmaMotionTests: XCTestCase {
+    func testIdleMatchesReferenceClockAndMesh() {
+        var motion = ReferencePlasmaMotion()
+        for _ in 0..<600 { motion.update(deltaTime: 1 / 60, state: .idle, level: 0, error: false, reducedMotion: false) }
+        XCTAssertEqual(motion.time, 11, accuracy: 0.001)
+        XCTAssertEqual(motion.distortion, 0.42, accuracy: 0.001)
+        XCTAssertEqual(motion.swirl, 0.26, accuracy: 0.001)
+        XCTAssertEqual(motion.grain, 0.06, accuracy: 0.001)
+    }
+
+    func testErrorEasesInAndReturnsToIdle() {
+        var motion = ReferencePlasmaMotion()
+        for _ in 0..<6 { motion.update(deltaTime: 1 / 60, state: .idle, level: 0, error: true, reducedMotion: false) }
+        XCTAssertGreaterThan(motion.errorMix, 0)
+        XCTAssertLessThan(motion.errorMix, 1)
+        XCTAssertLessThan(motion.distortion, 0.85)
+        for _ in 0..<300 { motion.update(deltaTime: 1 / 60, state: .idle, level: 0, error: true, reducedMotion: false) }
+        XCTAssertEqual(motion.errorMix, 1)
+        XCTAssertEqual(motion.distortion, 0.85, accuracy: 0.001)
+        XCTAssertEqual(motion.swirl, 0.55, accuracy: 0.001)
+        XCTAssertEqual(motion.grain, 0.2, accuracy: 0.001)
+        for _ in 0..<300 { motion.update(deltaTime: 1 / 60, state: .idle, level: 0, error: false, reducedMotion: false) }
+        XCTAssertEqual(motion.errorMix, 0)
+        XCTAssertEqual(motion.distortion, 0.42, accuracy: 0.001)
+    }
+
+    func testSpeechUsesReferenceTargetsAndReducedMotionFreezesClock() {
+        var motion = ReferencePlasmaMotion()
+        for _ in 0..<300 { motion.update(deltaTime: 1 / 60, state: .speaking, level: 1, error: false, reducedMotion: false) }
+        XCTAssertEqual(motion.distortion, 0.9, accuracy: 0.001)
+        XCTAssertEqual(motion.swirl, 0.55, accuracy: 0.001)
+        XCTAssertEqual(motion.grain, 0.18, accuracy: 0.001)
+        for _ in 0..<300 { motion.update(deltaTime: 1 / 60, state: .idle, level: 0, error: true, reducedMotion: true) }
+        XCTAssertEqual(motion.time, 8)
+        XCTAssertEqual(motion.errorMix, 1)
     }
 }

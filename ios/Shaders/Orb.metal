@@ -180,6 +180,10 @@ kernel void orbParticleUpdate(device const OrbParticleSeed *seeds   [[buffer(0)]
     // Alternating Fibonacci identities each cover the entire sphere evenly.
     // Stable IDs preserve an exact 50/50 split for the default 2000 dots.
     float3 tint = (id & 1u) == 0u ? u.particleColorA.rgb : u.particleColorB.rgb;
+    if (u.idleMotion.w > 3.5f) {
+        float3 errorTint = (id & 1u) == 0u ? float3(251, 113, 133) / 255.0f : float3(244, 63, 94) / 255.0f;
+        tint = mix(tint, errorTint * 0.8f, u.meshError.x);
+    }
     r.tint = float4(tint, alpha);
     out[id] = r;
 }
@@ -305,6 +309,147 @@ static float3 plasmaColor(float3 n, constant OrbUniforms &u) {
     return mix(pigment, float3(1.0f, 0.99f, 0.98f), luminous);
 }
 
+// Fifth material only: continuous overlapping colour regions, not a rotating texture.
+static float3 flowingPlasmaColor(float3 n, constant OrbUniforms &u) {
+
+    float t = u.coreMotionPhase * 2.4;
+    float energy = clamp(u.coreMotionIntensity, 0.0, 1.5) / 1.5;
+    float2 q = n.xy;
+    q += (0.16 + energy * 0.18) * float2(
+        sin(q.y * 2.2 + t * 0.63), cos(q.x * 2.0 - t * 0.57));
+    float twist = 0.32 * sin(t * 0.31 + dot(q, q) * 1.8);
+    q = float2(cos(twist) * q.x - sin(twist) * q.y,
+             sin(twist) * q.x + cos(twist) * q.y);
+    float3 total = float3(0.0);
+    float weights = 0.0;
+    for (int i = 0; i < 5; ++i) {
+        float k = float(i);
+        float angle = k * 1.25663706;
+        float2 center = float2(cos(angle), sin(angle)) * 0.72;
+        center += 0.34 * float2(sin(t * (0.47 + k * 0.035) + k * 2.1),
+                              cos(t * (0.39 + k * 0.027) + k * 1.7));
+        float2 delta = q - center;
+        float weight = exp(-3.6 * dot(delta, delta));
+        float3 pigment = i == 0 ? u.coreColorA.rgb * 0.85
+                     : i == 1 ? u.coreColorA.rgb
+                     : i == 2 ? mix(u.coreColorA.rgb, u.coreColorB.rgb, 0.5)
+                     : i == 3 ? u.coreColorB.rgb : mix(u.coreColorB.rgb, float3(1.0), 0.18);
+        total += pigment * weight;
+        weights += weight;
+    }
+    return mix(total / max(weights, 0.0001), float3(1.0, 0.99, 0.98), 0.11);
+}
+
+// Port of @paper-design/shaders 0.0.76 mesh-gradient. PolyForm Shield 1.0.0.
+// Original source and required terms: see THIRD_PARTY_NOTICES.md and Licenses/.
+static float2 paperRotate(float2 uv, float th) {
+    return float2(cos(th) * uv.x - sin(th) * uv.y, sin(th) * uv.x + cos(th) * uv.y);
+}
+static float paperHash21(float2 p) {
+    p = fract(p * float2(0.3183099, 0.3678794)) + 0.1;
+    p += dot(p, p + 19.19);
+    return fract(p.x * p.y);
+}
+float paperValueNoise(float2 st) {
+  float2 i = floor(st);
+  float2 f = fract(st);
+  float a = paperHash21(i);
+  float b = paperHash21(i + float2(1.0, 0.0));
+  float c = paperHash21(i + float2(0.0, 1.0));
+  float d = paperHash21(i + float2(1.0, 1.0));
+  float2 u = f * f * (3.0 - 2.0 * f);
+  float x1 = mix(a, b, u.x);
+  float x2 = mix(c, d, u.x);
+  return mix(x1, x2, u.y);
+}
+
+float paperNoise(float2 n, float2 seedOffset) {
+  return paperValueNoise(n + seedOffset);
+}
+
+float2 paperGetPosition(int i, float t) {
+  float a = float(i) * .37;
+  float b = .6 + fract(float(i) / 3.) * .9;
+  float c = .8 + fract(float(i + 1) / 4.);
+
+  float x = sin(t * b + a);
+  float y = cos(t * c + a * 1.5);
+
+  return .5 + .5 * float2(x, y);
+}
+
+static float3 referenceMeshColor(float3 n, constant OrbUniforms &u) {
+  float e = u.meshError.x;
+  float3 from = mix(u.coreColorA.rgb, float3(251.0, 113.0, 133.0) / 255.0, e);
+  float3 to = mix(u.meshPaletteTo.rgb, float3(244.0, 63.0, 94.0) / 255.0, e);
+  float4 colors[5] = {
+    float4(round(from * 0.65 * 255.0) / 255.0, 1.0), float4(from, 1.0),
+    float4(round(mix(from, to, 0.5) * 255.0) / 255.0, 1.0), float4(to, 1.0),
+    float4(round(mix(to, float3(1.0), 0.35) * 255.0) / 255.0, 1.0)
+  };
+
+  float2 uv = (n.xy * 0.5 / 1.15);
+  uv += .5;
+  float2 grainUV = uv * 1000.;
+
+  float grain = paperNoise(grainUV, float2(0.));
+  float mixerGrain = .4 * u.meshMotion.w * (grain - .5);
+
+  const float firstFrameOffset = 41.5;
+  float t = .5 * (u.meshMotion.x + firstFrameOffset);
+
+  float radius = smoothstep(0., 1., length(uv - .5));
+  float center = 1. - radius;
+  for (float i = 1.; i <= 2.; i++) {
+    uv.x += u.meshMotion.y * center / i * sin(t + i * .4 * smoothstep(.0, 1., uv.y)) * cos(.2 * t + i * 2.4 * smoothstep(.0, 1., uv.y));
+    uv.y += u.meshMotion.y * center / i * cos(t + i * 2. * smoothstep(.0, 1., uv.x));
+  }
+
+  float2 uvRotated = uv;
+  uvRotated -= float2(.5);
+  float angle = 3. * u.meshMotion.z * radius;
+  uvRotated = paperRotate(uvRotated, -angle);
+  uvRotated += float2(.5);
+
+  float3 color = float3(0.);
+  float opacity = 0.;
+  float totalWeight = 0.;
+
+  for (int i = 0; i < 5; i++) {
+    if (i >= int(5)) break;
+
+    float2 pos = paperGetPosition(i, t) + mixerGrain;
+    float3 colorFraction = colors[i].rgb * colors[i].a;
+    float opacityFraction = colors[i].a;
+
+    float dist = length(uvRotated - pos);
+
+    dist = pow(dist, 3.5);
+    float weight = 1. / (dist + 1e-3);
+    color += colorFraction * weight;
+    opacity += opacityFraction * weight;
+    totalWeight += weight;
+  }
+
+  color /= max(1e-4, totalWeight);
+  opacity /= max(1e-4, totalWeight);
+
+  float grainOverlay = paperValueNoise(paperRotate(grainUV, 1.) + float2(3.));
+  grainOverlay = mix(grainOverlay, paperValueNoise(paperRotate(grainUV, 2.) + float2(-1.)), .5);
+  grainOverlay = pow(grainOverlay, 1.3);
+
+  float grainOverlayV = grainOverlay * 2. - 1.;
+  float3 grainOverlayColor = float3(step(0., grainOverlayV));
+  float grainOverlayStrength = 0.05 * abs(grainOverlayV);
+  grainOverlayStrength = pow(grainOverlayStrength, .8);
+  color = mix(color, grainOverlayColor, .35 * grainOverlayStrength);
+
+  opacity += .5 * grainOverlayStrength;
+  opacity = clamp(opacity, 0., 1.);
+
+  return color;
+}
+
 fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
                                 constant OrbUniforms &u [[buffer(0)]]) {
     float worldRadius = u.orbRadius * u.coreRadiusRatio * u.idleMotion.z * (1.0f + clamp(u.audioLevel, 0.0f, 1.0f) * u.coreAudioGain);
@@ -316,6 +461,7 @@ fragment float4 orbGlowFragment(CoreVertexOut in [[stage_in]],
         float3 n = normalize(float3(p, 0.55f));
         float glassBlend = u.idleMotion.w > 2.5f ? 0.5f : (u.idleMotion.w < 1.5f ? 0.0f : 1.0f);
         float3 tint = mix(plasmaColor(n, u), coreRegionColor(n, u), glassBlend);
+        if (u.meshPaletteTo.w > 0.5f) { tint = referenceMeshColor(n, u); }
         float width = mix(0.24f, 0.32f, glassBlend);
         float halo = exp(-pow((radius - 0.94f) / width, 2.0f));
         float alpha = halo * (0.18f + u.audioLevel * 0.025f)
@@ -410,7 +556,9 @@ fragment CoreFragmentOut orbCoreFragment(CoreVertexOut in [[stage_in]],
     if (u.idleMotion.w > 0.5f) {
         // The fourth material sits halfway between the two existing interiors.
         float glassBlend = u.idleMotion.w > 2.5f ? 0.5f : (u.idleMotion.w < 1.5f ? 0.0f : 1.0f);
-        float3 pigment = mix(plasmaColor(n, u), base, glassBlend);
+        float3 pigment = u.idleMotion.w > 3.5f
+            ? (u.meshPaletteTo.w > 0.5f ? referenceMeshColor(n, u) : flowingPlasmaColor(n, u))
+            : mix(plasmaColor(n, u), base, glassBlend);
         // Broad reflection and a smaller soft highlight convey a curved surface.
         float lighting = mix(mix(0.69f, 0.72f, glassBlend), 1.0f, wrapped);
         shade = pigment * lighting;

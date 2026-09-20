@@ -1,8 +1,8 @@
-# Native four-variant playground
+# Native five-variant playground
 
-Open VoiceOrbPlayground.xcodeproj and run the VoiceOrbPlayground scheme. Swipe beside the orb or tap a page dot to compare Current orb, Plasma interior, Refined glass, and Plasma glass. Dragging on the orb preserves its gesture interaction. Audio controls and colour selections are shared.
+Open VoiceOrbPlayground.xcodeproj and run the VoiceOrbPlayground scheme. Swipe beside the orb or tap a page dot to compare Current orb, Plasma interior, Refined glass, Plasma glass, and Flowing plasma glass. Dragging on the orb preserves its gesture interaction. Audio controls and colour selections are shared.
 
-The Plasma shader includes activity-dependent colour churning and interleaving. Launch with -orbVariant 0, 1, 2, or 3 to select an initial material. Actual touch interaction verification was previously blocked by simulator UI automation timeouts; a successful build is not a touch-test result.
+The Plasma shader includes activity-dependent colour churning and interleaving. Launch with -orbVariant 0, 1, 2, 3, or 4 to select an initial material. Actual touch interaction verification was previously blocked by simulator UI automation timeouts; a successful build is not a touch-test result.
 
 # Quippy Voice Orb
 
@@ -61,4 +61,8 @@ The nominal shell is 62.9% of the canvas; the core is 40.900725%. Raster dimensi
 
 This package includes only the standalone orb, not the Quippy production app or backend.
 
-Plasma glass blends the plasma and refined-glass colour fields equally, with midpoint reflection strength and halo width. All four materials share the existing particle, gesture, colour, and audio controls.
+Plasma glass blends the plasma and refined-glass colour fields equally, with midpoint reflection strength and halo width. All five materials share the existing particle, gesture, and audio controls.
+
+Flowing plasma glass is a fifth option that preserves the fourth material’s dimensions, lighting, halo, and particles. Only its interior changes: five overlapping colour regions drift independently through a gently swirling field, using shades of the selected two colours. Integrated phase and exponentially smoothed activity keep audio transitions continuous. The ten mixed-colour pairs use this original native/WebGL flow. The five matching-colour pairs and error state use the Paper mesh shader port described below.
+
+The five same-colour choices now use a native port of Paper Shaders 0.0.76 mesh-gradient, with adjacent hues and VoiceOrbs motion settings. Preview error shows the reference rose-red palette and error movement; actual audio failures also activate it in variant five. Tap End error preview or choose a palette to leave the preview. See THIRD_PARTY_NOTICES.md for attribution and pixel-parity limits. The first four variants and the ten mixed-colour choices retain their existing materials.

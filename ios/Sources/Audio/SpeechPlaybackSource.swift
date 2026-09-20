@@ -43,6 +43,7 @@ final class SpeechPlaybackSource: NSObject, OrbAudioProviding {
     private(set) var lastLevel: Float = 0
 
     var trackDuration: Double { track?.duration ?? 0 }
+    @MainActor var canPlay: Bool { buffer != nil && status != .preparing }
 
     // MARK: - Setup
 
@@ -52,7 +53,6 @@ final class SpeechPlaybackSource: NSObject, OrbAudioProviding {
         status = .preparing
         do {
             let rendered = try await SpeechSampleGenerator.render()
-            try configureSession()
             try buildGraph(with: rendered)
             status = .ready
         } catch {
@@ -90,9 +90,8 @@ final class SpeechPlaybackSource: NSObject, OrbAudioProviding {
         buffer = pcm
         track = AudioEnvelopeTrack(samples: rendered.samples, sampleRate: rendered.sampleRate)
 
-        engine.attach(player)
+        if player.engine == nil { engine.attach(player) }
         engine.connect(player, to: engine.mainMixerNode, format: format)
-        engine.prepare()
 
         let latency = AVAudioSession.sharedInstance().outputLatency
         lock.withLock { $0.outputLatencyFrames = AVAudioFramePosition(latency * rendered.sampleRate) }
@@ -102,12 +101,19 @@ final class SpeechPlaybackSource: NSObject, OrbAudioProviding {
 
     @MainActor
     func play() {
-        guard status == .ready || status == .playing, let buffer else { return }
+        guard canPlay, let buffer else { return }
         stop()
 
         do {
+            // Microphone stop and backgrounding can deactivate the shared
+            // session or leave it in record mode. Restore it before each play.
+            try configureSession()
+            engine.prepare()
             if !engine.isRunning { try engine.start() }
+            let latency = AVAudioSession.sharedInstance().outputLatency
+            lock.withLock { $0.outputLatencyFrames = AVAudioFramePosition(latency * buffer.format.sampleRate) }
         } catch {
+            engine.stop()
             status = .failed("Audio engine failed to start: \(error)")
             return
         }
@@ -144,6 +150,7 @@ final class SpeechPlaybackSource: NSObject, OrbAudioProviding {
             state.isPlaying = false
         }
         player.stop()   // also discards anything still queued
+        engine.stop()   // release the output before switching to microphone input
 
         // Deliberately *not* `follower.reset()`. Zeroing here would cut the orb
         // to a standstill in one frame. Leaving the follower where it is lets

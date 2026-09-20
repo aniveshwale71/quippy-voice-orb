@@ -10,6 +10,9 @@ public struct OrbConfiguration: Equatable {
     /// Local comparison material. Particle simulation is identical for every material.
     public var material: OrbMaterial = .baseline
     public var renderingEnabled: Bool = true
+    public var usesReferencePlasma: Bool = false
+    public var previewsError: Bool = false
+    public var referenceColorTo: SIMD3<Float> = SIMD3(1, 0.62, 0)
 
     // MARK: Layout
 
@@ -247,7 +250,7 @@ public enum OrbPalette {
 }
 
 public enum OrbMaterial: Int, CaseIterable, Identifiable {
-    case baseline, plasma, refinedGlass, plasmaGlass
+    case baseline, plasma, refinedGlass, plasmaGlass, flowingPlasmaGlass
     public var id: Int { rawValue }
     public var title: String {
         switch self {
@@ -255,6 +258,7 @@ public enum OrbMaterial: Int, CaseIterable, Identifiable {
         case .plasma: return "Plasma interior"
         case .refinedGlass: return "Refined glass"
         case .plasmaGlass: return "Plasma glass"
+        case .flowingPlasmaGlass: return "Flowing plasma glass"
         }
     }
 }

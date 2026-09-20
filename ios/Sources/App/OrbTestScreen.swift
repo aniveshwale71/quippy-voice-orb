@@ -7,6 +7,8 @@ struct OrbTestScreen: View {
     @State private var selectedMaterial: OrbMaterial = DeveloperOptions.initialMaterial
     @State private var firstColour: Double = 0
     @State private var secondColour: Double = 1
+    @State private var selectedPair = OrbColourPair.initial
+    @State private var previewsError = ProcessInfo.processInfo.arguments.contains("-orbErrorPreview")
 
     private var configuration: OrbConfiguration {
         var c = DeveloperOptions.configuration
@@ -95,8 +97,12 @@ struct OrbTestScreen: View {
                                 .padding(.horizontal, 36)
                         }
                     }
-                    colourSlider("Colour 1", selection: $firstColour)
-                    colourSlider("Colour 2", selection: $secondColour)
+                    if selectedMaterial == .flowingPlasmaGlass {
+                        colourPairGrid
+                    } else {
+                        colourSlider("Colour 1", selection: $firstColour)
+                        colourSlider("Colour 2", selection: $secondColour)
+                    }
                 }
                 .padding(.horizontal, 28)
                 .padding(.bottom, 16)
@@ -114,8 +120,53 @@ struct OrbTestScreen: View {
     private func configuration(for material: OrbMaterial) -> OrbConfiguration {
         var c = configuration
         c.material = material
+        if material == .flowingPlasmaGlass {
+            c.usesReferencePlasma = selectedPair.first == selectedPair.second || previewsError || host.hasAudioError
+            c.previewsError = previewsError || host.hasAudioError
+            c.referenceColorTo = selectedPair.first.adjacentPigment
+            c.coreColorA = selectedPair.first.pigment
+            c.coreColorB = selectedPair.second.pigment
+            c.particleColorA = selectedPair.first.particle
+            c.particleColorB = selectedPair.second.particle
+        }
         c.renderingEnabled = selectedMaterial == material
         return c
+    }
+
+    private var colourPairGrid: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(previewsError || host.hasAudioError ? "Error" : selectedPair.title)
+                Spacer()
+                Button(previewsError ? "End error preview" : "Preview error") {
+                    previewsError.toggle()
+                }
+                .foregroundStyle(.red)
+                .accessibilityIdentifier("orbErrorPreview")
+            }
+            .font(.system(size: 13, weight: .medium, design: .rounded))
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 10) {
+                ForEach(OrbColourPair.all) { pair in
+                    Button { selectedPair = pair; previewsError = false } label: {
+                        HStack(spacing: 0) {
+                            pair.first.color
+                            pair.second.color
+                        }
+                        .frame(height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(3)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 13)
+                                .strokeBorder(selectedPair == pair ? Color.primary : Color.clear, lineWidth: 2)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(pair.title)
+                    .accessibilityAddTraits(selectedPair == pair ? .isSelected : [])
+                    .accessibilityIdentifier("orbColourPair-\(pair.id)")
+                }
+            }
+        }
     }
 
     private func colourSlider(_ title: String, selection: Binding<Double>) -> some View {
@@ -145,6 +196,29 @@ struct OrbTestScreen: View {
 
 }
 
+/// Unordered pairs including matching colours: five colours produce 15 choices.
+private struct OrbColourPair: Identifiable, Equatable {
+    let first: OrbPreviewColour
+    let second: OrbPreviewColour
+    var id: String { "\(first.rawValue)-\(second.rawValue)" }
+    var title: String { "\(first.rawValue) + \(second.rawValue)" }
+
+    static var initial: OrbColourPair {
+        let args = ProcessInfo.processInfo.arguments
+        if let flag = args.firstIndex(of: "-orbSameColour"), args.indices.contains(flag + 1),
+           let colour = OrbPreviewColour(rawValue: args[flag + 1]) {
+            return OrbColourPair(first: colour, second: colour)
+        }
+        return OrbColourPair(first: .yellow, second: .blue)
+    }
+
+    static let all: [OrbColourPair] = OrbPreviewColour.allCases.enumerated().flatMap { index, first in
+        OrbPreviewColour.allCases.dropFirst(index).map { second in
+            OrbColourPair(first: first, second: second)
+        }
+    }
+}
+
 /// Owns the router and polls it slowly, only so the labels and buttons can
 /// update. Rendering never goes through this — the renderer reads the router
 /// directly, once per frame.
@@ -156,6 +230,7 @@ final class OrbTestHost: ObservableObject {
     @Published private(set) var canPlay = false
     @Published private(set) var canListen = true
     @Published private(set) var showsSettingsHint = false
+    @Published private(set) var hasAudioError = false
 
     private let simulated = SimulatedSpeechSource()
     private let router = OrbAudioRouter()
@@ -219,12 +294,21 @@ final class OrbTestHost: ObservableObject {
             return
         }
 
+        let playbackFailed: Bool
+        if case .failed = router.playback.status { playbackFailed = true } else { playbackFailed = false }
+        let microphoneFailed: Bool
+        switch router.microphone.status {
+        case .failed, .unavailable, .denied: microphoneFailed = true
+        default: microphoneFailed = false
+        }
+        let audioError = playbackFailed || microphoneFailed
+        if hasAudioError != audioError { hasAudioError = audioError }
         let playing = router.playback.status == .playing
         let listening = router.microphone.status == .listening
         if isPlaying != playing { isPlaying = playing }
         if isListening != listening { isListening = listening }
 
-        let playbackReady = router.playback.status == .ready || playing
+        let playbackReady = router.playback.canPlay
         // The two sources are mutually exclusive, so each control is disabled
         // while the other owns the audio session.
         if canPlay != (playbackReady && !listening) { canPlay = playbackReady && !listening }
@@ -246,7 +330,10 @@ final class OrbTestHost: ObservableObject {
             switch router.playback.status {
             case .playing: next = "speaking"
             case .preparing: next = "preparing speech…"
-            case .failed(let reason): next = "speech unavailable — \(reason)"
+            case .failed:
+                next = playbackReady
+                    ? "Couldn’t play the sample. Tap Play sample to try again."
+                    : "The speech sample is unavailable. Reopen the app to try again."
             case .idle, .ready: next = "idle"
             }
         }
@@ -301,6 +388,17 @@ private enum OrbPreviewColour: String, CaseIterable {
         case .green: return OrbPalette.green500
         case .purple: return OrbPalette.purple500
         case .pink: return OrbPalette.pink500
+        }
+    }
+
+    // Neighbouring hues preserve the main colour while revealing the mesh flow.
+    var adjacentPigment: SIMD3<Float> {
+        switch self {
+        case .yellow: return SIMD3(1, 158.0 / 255, 0)
+        case .blue: return SIMD3(88.0 / 255, 101.0 / 255, 242.0 / 255)
+        case .green: return SIMD3(22.0 / 255, 199.0 / 255, 132.0 / 255)
+        case .purple: return SIMD3(236.0 / 255, 72.0 / 255, 153.0 / 255)
+        case .pink: return SIMD3(244.0 / 255, 63.0 / 255, 94.0 / 255)
         }
     }
 

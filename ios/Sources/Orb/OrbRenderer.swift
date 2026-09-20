@@ -43,6 +43,7 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
     private var stateResponse: Float = 0
     private var coreMotionPhase: Float = 0
     private var coreMotionIntensity: Float = 0.12
+    private var referenceMotion = ReferencePlasmaMotion()
 
     let device: MTLDevice
     private let queue: MTLCommandQueue
@@ -227,6 +228,11 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
             idleMotion: SIMD4(idlePhase, c.tapStrength * 0.25 * idleBlend,
                               1 + 0.03 * (0.5 - 0.5 * cos(idlePhase)) * idleBlend
                                 * ((reduceMotionEnabled && configuration.respectsReduceMotion) ? c.reducedMotionScale : 1), Float(c.material.rawValue)),
+            meshMotion: SIMD4(referenceMotion.time, referenceMotion.distortion,
+                              referenceMotion.swirl, referenceMotion.grain),
+            meshPaletteTo: SIMD4(c.referenceColorTo,
+                c.material == .flowingPlasmaGlass && (c.usesReferencePlasma || referenceMotion.errorMix > 0.001) ? 1 : 0),
+            meshError: SIMD4(referenceMotion.errorMix, 0, 0, 0),
             time: clock.time,
             deltaTime: clock.deltaTime,
             orbRadius: 1,
@@ -406,6 +412,9 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
         }
 
         let c = effectiveConfiguration
+        referenceMotion.update(deltaTime: clock.deltaTime, state: state,
+            level: effectiveAudio, error: c.material == .flowingPlasmaGlass && c.previewsError,
+            reducedMotion: reduceMotionEnabled && c.respectsReduceMotion)
         let idleTarget: Float = state == .idle ? 1 : 0
         idleBlend += (idleTarget - idleBlend) * (1 - exp(-clock.deltaTime / 0.65))
         // One 4.8-second cycle drives both the surface wave and core breathing.
@@ -450,5 +459,59 @@ final class OrbRenderer: NSObject, MTKViewDelegate {
 
     func resumeClock() {
         clock.resume()
+    }
+}
+
+// Timing port from VoiceOrbs plasma-orb (MIT). See THIRD_PARTY_NOTICES.md.
+// Paper's frame=8000 means 8 seconds, not 8000 animation frames.
+struct ReferencePlasmaMotion {
+    private(set) var time: Float = 8
+    private(set) var distortion: Float = 0.42
+    private(set) var swirl: Float = 0.26
+    private(set) var grain: Float = 0.06
+    private(set) var errorMix: Float = 0
+    private var energy: Float = 0
+    private var smoothDistortion: Float = 0.42
+    private var smoothSwirl: Float = 0.26
+    private var smoothSpeed: Float = 0.3
+    private var smoothGrain: Float = 0.06
+    private var smoothError: Float = 0
+    private var speed: Float = 0.3
+    private var sincePush: Float = 0
+
+    mutating func update(deltaTime: Float, state: OrbState, level: Float,
+                         error: Bool, reducedMotion: Bool) {
+        let dt = min(max(deltaTime, 0), 0.1)
+        let targetEnergy: Float = error ? 0.2 : (state == .idle ? 0 : max(0, min(1, level)))
+        func approach(_ current: Float, _ target: Float, _ rate: Float) -> Float {
+            current + (target - current) * (1 - exp(-rate * dt))
+        }
+        energy = approach(energy, targetEnergy, 7.5)
+        let active = state == .listening || state == .speaking
+        let targetDistortion: Float = error ? 0.85 : (active ? min(1, 0.5 + energy * 0.4) : 0.42)
+        let targetSwirl: Float = error ? 0.55 : (active ? min(1, 0.3 + energy * 0.25) : 0.26)
+        let targetSpeed: Float = error ? 1.8 : (state == .listening ? 1.6 : state == .speaking ? 1.1 : 0.3)
+        let targetGrain: Float = error ? 0.2 : (state == .listening ? 0.16 : state == .speaking ? 0.18 : 0.06)
+        smoothDistortion = approach(smoothDistortion, targetDistortion, 6)
+        smoothSwirl = approach(smoothSwirl, targetSwirl, 6)
+        smoothSpeed = approach(smoothSpeed, targetSpeed, 5)
+        smoothGrain = approach(smoothGrain, targetGrain, 6)
+        smoothError = approach(smoothError, error ? 1 : 0, 6)
+        if !reducedMotion { time += dt * speed }
+        sincePush += dt
+        if reducedMotion {
+            time = 8
+            distortion = targetDistortion
+            swirl = targetSwirl
+            grain = targetGrain
+            errorMix = error ? 1 : 0
+        } else if sincePush > 0.066 {
+            sincePush = 0
+            distortion = (smoothDistortion * 100).rounded() / 100
+            swirl = (smoothSwirl * 100).rounded() / 100
+            speed = (smoothSpeed * 100).rounded() / 100
+            grain = (smoothGrain * 200).rounded() / 200
+            errorMix = (smoothError * 100).rounded() / 100
+        }
     }
 }

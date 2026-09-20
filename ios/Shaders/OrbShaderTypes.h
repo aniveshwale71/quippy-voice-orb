@@ -27,7 +27,11 @@ typedef struct {
 
     vector_float4 coreLightDirection;  // xyz unit, w unused
 
-    vector_float4 idleMotion; // x cycle phase, y ripple force, z core scale, w material (0 baseline, 1 plasma, 2 glass, 3 plasma glass)
+    vector_float4 idleMotion; // x cycle phase, y ripple force, z core scale, w material (0 baseline, 1 plasma, 2 glass, 3 plasma glass, 4 flowing plasma glass)
+
+    vector_float4 meshMotion; // reference time, distortion, swirl, grain
+    vector_float4 meshPaletteTo; // adjacent hue, w enables reference shader
+    vector_float4 meshError; // x error palette blend
 
     float time;
     float deltaTime;

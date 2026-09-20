@@ -1,13 +1,18 @@
 import {noise,region} from './shader-noise.js';
+import {referenceMesh,ReferenceMotion} from './reference-plasma.js';
 const $=id=>document.getElementById(id);
 const palette=[['Yellow','#FFE600','#F59400'],['Blue','#00AEFA','#0074D5'],['Green','#83F300',null],['Purple','#A948E5',null],['Pink','#FF339F',null]];
 const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);
 const picks=[0,1];
-const variants=['Current orb','Plasma interior','Refined glass','Plasma glass'];
+let pairPicks=[0,1],previewError=false,audioError=false;
+const adjacent=['#FF9E00','#5865F2','#16C784','#EC4899','#F43F5E'];
+const referenceMotion=new ReferenceMotion();
+const variants=['Current orb','Plasma interior','Refined glass','Plasma glass','Flowing plasma glass'];
 let material=0;
 function selectVariant(next,direction=1){
   next=Math.max(0,Math.min(variants.length-1,next));if(next===material)return;
   material=next;
+  updatePairControls();
   $('variant-name').textContent=`${material+1} / ${variants.length} · ${variants[material]}`;
   document.querySelectorAll('[data-variant]').forEach((button,i)=>button.setAttribute('aria-pressed',String(i===material)));
   if(!reduced.matches)canvas.animate([{transform:`translateX(${direction*28}px)`,opacity:.3},{transform:'translateX(0)',opacity:1}],{duration:260,easing:'ease-out'});
@@ -25,12 +30,31 @@ const canvas=$('orb'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
 for(const row of document.querySelectorAll('.swatches'))for(const [,color]of palette){const dot=document.createElement('span');dot.style.background=color;row.append(dot)}
 function updateColours(){for(let i=0;i<2;i++){const suffix=i?'b':'a';$('name-'+suffix).textContent=palette[picks[i]][0];$('colour-'+suffix).setAttribute('aria-valuetext',palette[picks[i]][0]);$('colour-'+suffix).style.accentColor=palette[picks[i]][2]||palette[picks[i]][1]}}
 for(const [i,suffix]of ['a','b'].entries())$('colour-'+suffix).addEventListener('input',e=>{picks[i]=+e.target.value;updateColours()});
-$('reset').onclick=()=>{picks[0]=0;picks[1]=1;$('colour-a').value=0;$('colour-b').value=1;updateColours()};updateColours();
+$('reset').onclick=()=>{if(material===4){pairPicks=[0,1];previewError=false;updatePairControls();return;}picks[0]=0;picks[1]=1;$('colour-a').value=0;$('colour-b').value=1;updateColours()};updateColours();
+function updatePairControls(){
+  const fifth=material===4;
+  document.querySelector('.phone-screen').classList.toggle('fifth',fifth);
+  document.querySelectorAll('.colour-control').forEach(row=>row.hidden=fifth);
+  $('pair-controls').hidden=!fifth;
+  $('pair-name').textContent=previewError||audioError?'Error':pairPicks.map(i=>palette[i][0]).join(' + ');
+  $('error-preview').textContent=previewError?'End error preview':'Preview error';
+  $('error-preview').setAttribute('aria-pressed',String(previewError));
+  document.querySelectorAll('[data-pair]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.pair===pairPicks.join(','))));
+}
+for(let a=0;a<palette.length;a++)for(let b=a;b<palette.length;b++){
+  const button=document.createElement('button');button.dataset.pair=[a,b].join(',');
+  button.setAttribute('aria-label',`${palette[a][0]} + ${palette[b][0]}`);
+  button.style.background=`linear-gradient(90deg,${palette[a][1]} 50%,${palette[b][1]} 50%)`;
+  button.onclick=()=>{pairPicks=[a,b];previewError=false;updatePairControls()};
+  $('pair-grid').append(button);
+}
+$('error-preview').onclick=()=>{previewError=!previewError;updatePairControls()};
+updatePairControls();
 function showState(text){$('status').textContent=text||({idle:'Idle',speaking:'Speaking',listening:'Listening'}[mode]);$('status-dot').style.background=mode==='idle'?'#afa99f':'#00aefa';$('play').textContent=mode==='speaking'?'■ Stop':'▶ Play sample';$('listen').textContent=mode==='listening'?'■ Stop listening':'◉ Listen';$('play').classList.toggle('active',mode==='speaking');$('listen').classList.toggle('active',mode==='listening')}
-function stop(){operation++;if(source){source.onended=null;try{source.stop()}catch{}source.disconnect();source=null}if(microphone){microphone.disconnect();microphone=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}analyser=null;mode='idle';loading=false;$('play').disabled=false;$('listen').disabled=false;showState()}
+function stop(){audioError=false;updatePairControls();operation++;if(source){source.onended=null;try{source.stop()}catch{}source.disconnect();source=null}if(microphone){microphone.disconnect();microphone=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}analyser=null;mode='idle';loading=false;$('play').disabled=false;$('listen').disabled=false;showState()}
 async function audio(){if(!audioContext)audioContext=new(window.AudioContext||window.webkitAudioContext)();await audioContext.resume();analyser=audioContext.createAnalyser();analyser.fftSize=1024;bytes=new Float32Array(analyser.fftSize)}
-$('play').onclick=async()=>{if(mode==='speaking'){stop();return}stop();const token=operation;loading=true;$('play').disabled=true;showState('Preparing sample…');try{await audio();if(!audioBuffer){const response=await fetch('sample.wav');if(!response.ok)throw Error('Sample unavailable');audioBuffer=await audioContext.decodeAudioData(await response.arrayBuffer())}if(token!==operation)return;source=audioContext.createBufferSource();source.buffer=audioBuffer;source.connect(analyser);analyser.connect(audioContext.destination);source.onended=()=>{if(token===operation)stop()};source.start();mode='speaking';showState();$('audio-note').textContent='The animation follows the actual sample audio.'}catch(e){if(token===operation){stop();showState('Could not play sample. Try again.')}}finally{if(token===operation){loading=false;$('play').disabled=false}}};
-$('listen').onclick=async()=>{if(mode==='listening'){stop();return}stop();const token=operation;$('listen').disabled=true;showState('Allow microphone access…');try{await audio();const acquired=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});if(token!==operation){acquired.getTracks().forEach(t=>t.stop());return}stream=acquired;microphone=audioContext.createMediaStreamSource(stream);microphone.connect(analyser);mode='listening';showState();$('audio-note').textContent='Listening locally. No recording, storage or uploads.'}catch(e){if(token===operation){stop();showState(e.name==='NotAllowedError'?'Microphone permission needed.':'Microphone unavailable.');$('audio-note').textContent='Allow microphone access in your browser, then try Listen again.'}}finally{if(token===operation)$('listen').disabled=false}};
+$('play').onclick=async()=>{if(mode==='speaking'){stop();return}stop();const token=operation;loading=true;$('play').disabled=true;showState('Preparing sample…');try{await audio();if(!audioBuffer){const response=await fetch('sample.wav');if(!response.ok)throw Error('Sample unavailable');audioBuffer=await audioContext.decodeAudioData(await response.arrayBuffer())}if(token!==operation)return;source=audioContext.createBufferSource();source.buffer=audioBuffer;source.connect(analyser);analyser.connect(audioContext.destination);source.onended=()=>{if(token===operation)stop()};source.start();mode='speaking';showState();$('audio-note').textContent='The animation follows the actual sample audio.'}catch(e){if(token===operation){stop();audioError=true;updatePairControls();showState('Could not play sample. Try again.')}}finally{if(token===operation){loading=false;$('play').disabled=false}}};
+$('listen').onclick=async()=>{if(mode==='listening'){stop();return}stop();const token=operation;$('listen').disabled=true;showState('Allow microphone access…');try{await audio();const acquired=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});if(token!==operation){acquired.getTracks().forEach(t=>t.stop());return}stream=acquired;microphone=audioContext.createMediaStreamSource(stream);microphone.connect(analyser);mode='listening';showState();$('audio-note').textContent='Listening locally. No recording, storage or uploads.'}catch(e){if(token===operation){stop();audioError=true;updatePairControls();showState(e.name==='NotAllowedError'?'Microphone permission needed.':'Microphone unavailable.');$('audio-note').textContent='Allow microphone access in your browser, then try Listen again.'}}finally{if(token===operation)$('listen').disabled=false}};
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});window.addEventListener('pagehide',stop);
 const common=`#version 300 es
 precision highp float;
@@ -39,7 +63,8 @@ uniform vec3 coreColorA,coreColorB,particleA,particleB;
 uniform float coreWarpFrequency,coreWarpAmount,coreBoundarySoftness,canvasSize,pixelRatio;
 uniform vec2 rotation;
 uniform vec2 idleMotion;
-uniform float material;
+uniform float material,meshError;
+uniform vec4 meshMotion,meshPaletteTo;
 uniform vec4 tap0,tap1,tap2,tap3;
 const float fill=0.629;
 const float tanHalf=0.2679491924;
@@ -68,11 +93,44 @@ vec3 plasmaColor(vec3 n){
  return mix(pigment,vec3(1,.99,.98),luminous);
 }
 `;
+const flowingPlasma=`
+vec3 flowingPlasmaColor(vec3 n) {
+
+    float t = coreMotionPhase * 2.4;
+    float energy = clamp(coreMotionIntensity, 0.0, 1.5) / 1.5;
+    vec2 q = n.xy;
+    q += (0.16 + energy * 0.18) * vec2(
+        sin(q.y * 2.2 + t * 0.63), cos(q.x * 2.0 - t * 0.57));
+    float twist = 0.32 * sin(t * 0.31 + dot(q, q) * 1.8);
+    q = vec2(cos(twist) * q.x - sin(twist) * q.y,
+             sin(twist) * q.x + cos(twist) * q.y);
+    vec3 total = vec3(0.0);
+    float weights = 0.0;
+    for (int i = 0; i < 5; ++i) {
+        float k = float(i);
+        float angle = k * 1.25663706;
+        vec2 center = vec2(cos(angle), sin(angle)) * 0.72;
+        center += 0.34 * vec2(sin(t * (0.47 + k * 0.035) + k * 2.1),
+                              cos(t * (0.39 + k * 0.027) + k * 1.7));
+        vec2 delta = q - center;
+        float weight = exp(-3.6 * dot(delta, delta));
+        vec3 pigment = i == 0 ? coreColorA * 0.85
+                     : i == 1 ? coreColorA
+                     : i == 2 ? mix(coreColorA, coreColorB, 0.5)
+                     : i == 3 ? coreColorB : mix(coreColorB, vec3(1.0), 0.18);
+        total += pigment * weight;
+        weights += weight;
+    }
+    return mix(total / max(weights, 0.0001), vec3(1.0, 0.99, 0.98), 0.11);
+}
+`;
 const coreFragment=common+`
 in vec2 uv;out vec4 fragColor;
 ${region}
 ${plasma}
-void main(){float radius=coreRatio*(1.0+.03*(.5-.5*cos(idleMotion.x))*idleMotion.y*motionScale)*(1.0+audioLevel*0.06*mix(0.45,1.0,motionScale));vec2 p=uv/(radius/camera/tanHalf);float r2=dot(p,p);if(r2>1.0)discard;float z=sqrt(saturate(1.0-r2));vec3 n=vec3(p,z);vec3 base=coreRegionColor(n);vec3 lightDir=normalize(vec3(-.65,.68,.42));float wrapped=saturate((dot(n,lightDir)+.75)/1.75);vec3 shade=base*mix(.66,1.0,wrapped);float ndoth=saturate(dot(n,normalize(lightDir+vec3(0,0,1))));float diffusion=pow(ndoth,3.5)*.48+(1.0-r2)*.04;shade=mix(shade,mix(base,vec3(1),.52),diffusion);shade+=base*pow(ndoth,6.0)*.025;float reflection=.30*pow(ndoth,24.0)+.16*pow(ndoth,72.0);shade=mix(shade,vec3(1,.995,.985),reflection);float ndotl=dot(n,lightDir);shade*=1.0-pow(saturate(-ndotl),1.5)*.10;float rim=pow(1.0-z,2.0);shade=mix(shade,vec3(1),rim*.08);float rimBand=exp(-pow((sqrt(r2)-.91)/.035,2.0));shade=mix(shade,vec3(1),rimBand*(.08+.16*saturate(ndotl)));shade*=mix(.945,1.0,sqrt(z));if(material>.5){float glassBlend=material>2.5?.5:(material<1.5?0.0:1.0);vec3 pigment=mix(plasmaColor(n),base,glassBlend);
+${flowingPlasma}
+${referenceMesh}
+void main(){float radius=coreRatio*(1.0+.03*(.5-.5*cos(idleMotion.x))*idleMotion.y*motionScale)*(1.0+audioLevel*0.06*mix(0.45,1.0,motionScale));vec2 p=uv/(radius/camera/tanHalf);float r2=dot(p,p);if(r2>1.0)discard;float z=sqrt(saturate(1.0-r2));vec3 n=vec3(p,z);vec3 base=coreRegionColor(n);vec3 lightDir=normalize(vec3(-.65,.68,.42));float wrapped=saturate((dot(n,lightDir)+.75)/1.75);vec3 shade=base*mix(.66,1.0,wrapped);float ndoth=saturate(dot(n,normalize(lightDir+vec3(0,0,1))));float diffusion=pow(ndoth,3.5)*.48+(1.0-r2)*.04;shade=mix(shade,mix(base,vec3(1),.52),diffusion);shade+=base*pow(ndoth,6.0)*.025;float reflection=.30*pow(ndoth,24.0)+.16*pow(ndoth,72.0);shade=mix(shade,vec3(1,.995,.985),reflection);float ndotl=dot(n,lightDir);shade*=1.0-pow(saturate(-ndotl),1.5)*.10;float rim=pow(1.0-z,2.0);shade=mix(shade,vec3(1),rim*.08);float rimBand=exp(-pow((sqrt(r2)-.91)/.035,2.0));shade=mix(shade,vec3(1),rimBand*(.08+.16*saturate(ndotl)));shade*=mix(.945,1.0,sqrt(z));if(material>.5){float glassBlend=material>2.5?.5:(material<1.5?0.0:1.0);vec3 pigment=material>3.5?(meshPaletteTo.w>.5?referenceMeshColor(n):flowingPlasmaColor(n)):mix(plasmaColor(n),base,glassBlend);
 shade=pigment*mix(mix(.69,.72,glassBlend),1.0,wrapped);
 float softbox=pow(ndoth,19.0)*mix(.27,.43,glassBlend)+pow(ndoth,65.0)*mix(.10,.18,glassBlend);
 shade=mix(shade,vec3(1,.995,.985),softbox);
@@ -82,24 +140,25 @@ float edge=material>.5?max(fwidth(sqrt(r2))*1.5,.018):.14;
 float alpha=1.0-smoothstep(1.0-edge,1.0,sqrt(r2));fragColor=vec4(shade,alpha);gl_FragDepth=.5-z*radius/6.0;}`;
 const glowFragment=common+`
 in vec2 uv;out vec4 fragColor;
+${referenceMesh}
 ${region}
 ${plasma}
 void main(){float radius=coreRatio*(1.0+.03*(.5-.5*cos(idleMotion.x))*idleMotion.y*motionScale)*(1.0+audioLevel*.06*mix(.45,1.0,motionScale));float r=length(uv/(radius/camera/tanHalf));if(r>1.65)discard;
-if(material>.5){vec2 p=uv/(radius/camera/tanHalf);vec3 n=normalize(vec3(p,.55));float glassBlend=material>2.5?.5:(material<1.5?0.0:1.0);vec3 tint=mix(plasmaColor(n),coreRegionColor(n),glassBlend);float width=mix(.24,.32,glassBlend);float halo=exp(-pow((r-.94)/width,2.0));float alpha=halo*(.18+audioLevel*.025)*(1.0-smoothstep(1.35,1.65,r));fragColor=vec4(tint,alpha);return;}
+if(material>.5){vec2 p=uv/(radius/camera/tanHalf);vec3 n=normalize(vec3(p,.55));float glassBlend=material>2.5?.5:(material<1.5?0.0:1.0);vec3 tint=mix(plasmaColor(n),coreRegionColor(n),glassBlend);if(meshPaletteTo.w>.5)tint=referenceMeshColor(n);float width=mix(.24,.32,glassBlend);float halo=exp(-pow((r-.94)/width,2.0));float alpha=halo*(.18+audioLevel*.025)*(1.0-smoothstep(1.35,1.65,r));fragColor=vec4(tint,alpha);return;}
 float falloff=exp(-pow(max(r-.76,0.0)/.43,2.0));float alpha=falloff*(.34+audioLevel*.06)*(1.0-smoothstep(1.45,1.65,r));fragColor=vec4(vec3(1),alpha);}`;
 const particleVertex=common+`
 layout(location=0)in vec4 seed;layout(location=1)in vec4 params;out vec4 tint;
 vec3 rotate(vec3 p){float a=rotation.x+time*.085*motionScale,b=rotation.y;float c=cos(a),s=sin(a);p=vec3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z);c=cos(b);s=sin(b);return vec3(p.x,c*p.y-s*p.z,s*p.y+c*p.z);}
-void main(){vec3 dir=normalize(seed.xyz);float t=time*.085*motionScale;vec3 flow=curlNoise(dir*1.45+vec3(0,0,t)+params.z);vec3 tangential=flow-dir*dot(flow,dir);vec3 wandered=normalize(dir+tangential*.085*motionScale*(1.0+audioLevel*.6));float breathing=valueNoise(dir*2.1+vec3(t*.7,params.z,-t*.5));float radius=(params.x+breathing*.028*motionScale)*(1.0+audioLevel*.14*mix(.45,1.0,motionScale));float idleArc=acos(clamp(dir.z,-1.0,1.0));float breath=.5-.5*cos(idleMotion.x);float band=(idleArc-3.14159265*breath)/.42;float idleDisplacement=.05*exp(-band*band)*idleMotion.y*motionScale;vec3 world=rotate(wandered*(radius+idleDisplacement));vec4 taps[4]=vec4[4](tap0,tap1,tap2,tap3);for(int i=0;i<4;i++){float age=time-taps[i].z;if(age>=0.0&&age<2.6){vec2 projected=world.xy/(camera-world.z)/tanHalf;float d=length(projected-taps[i].xy);float band=(d-age*.8)/.12;world+=normalize(world)*exp(-band*band)*exp(-age*1.7)*.20*motionScale;}}float vd=length(vec3(0,0,camera)-world);float front=saturate((camera-vd)/2.0+.5);float facing=abs(dot(normalize(world),normalize(vec3(0,0,camera)-world)));float rim=pow(saturate(1.0-facing),1.35);float alpha=mix(.48*mix(.65,1.0,front),1.0,rim);float d=camera-world.z;gl_Position=vec4(world.xy/tanHalf,(-world.z/3.0)*d,d);gl_PointSize=2.0*max(.0118/.85*1.5*params.y*(.70+.60*front)*(canvasSize*.5/tanHalf)/d,.75);tint=vec4(seed.w<.5?particleA:particleB,alpha);}`;
+void main(){vec3 dir=normalize(seed.xyz);float t=time*.085*motionScale;vec3 flow=curlNoise(dir*1.45+vec3(0,0,t)+params.z);vec3 tangential=flow-dir*dot(flow,dir);vec3 wandered=normalize(dir+tangential*.085*motionScale*(1.0+audioLevel*.6));float breathing=valueNoise(dir*2.1+vec3(t*.7,params.z,-t*.5));float radius=(params.x+breathing*.028*motionScale)*(1.0+audioLevel*.14*mix(.45,1.0,motionScale));float idleArc=acos(clamp(dir.z,-1.0,1.0));float breath=.5-.5*cos(idleMotion.x);float band=(idleArc-3.14159265*breath)/.42;float idleDisplacement=.05*exp(-band*band)*idleMotion.y*motionScale;vec3 world=rotate(wandered*(radius+idleDisplacement));vec4 taps[4]=vec4[4](tap0,tap1,tap2,tap3);for(int i=0;i<4;i++){float age=time-taps[i].z;if(age>=0.0&&age<2.6){vec2 projected=world.xy/(camera-world.z)/tanHalf;float d=length(projected-taps[i].xy);float band=(d-age*.8)/.12;world+=normalize(world)*exp(-band*band)*exp(-age*1.7)*.20*motionScale;}}float vd=length(vec3(0,0,camera)-world);float front=saturate((camera-vd)/2.0+.5);float facing=abs(dot(normalize(world),normalize(vec3(0,0,camera)-world)));float rim=pow(saturate(1.0-facing),1.35);float alpha=mix(.48*mix(.65,1.0,front),1.0,rim);float d=camera-world.z;gl_Position=vec4(world.xy/tanHalf,(-world.z/3.0)*d,d);gl_PointSize=2.0*max(.0118/.85*1.5*params.y*(.70+.60*front)*(canvasSize*.5/tanHalf)/d,.75);vec3 pigment=seed.w<.5?particleA:particleB;if(material>3.5)pigment=mix(pigment,(seed.w<.5?vec3(251,113,133):vec3(244,63,94))/255.0*.8,meshError);tint=vec4(pigment,alpha);}`;
 const particleFragment=`#version 300 es
 precision highp float;in vec4 tint;out vec4 fragColor;void main(){float d=length(gl_PointCoord-vec2(.5));float edge=max(fwidth(d),.055);float featherWidth=2.0*(.27-max(.25-edge,.10));float core=1.0-smoothstep(.27-featherWidth,.27,d);float halo=.40*exp(-12.0*d*d)*(1.0-smoothstep(.36,.5,d));float mask=core+halo*(1.0-core);if(mask<=.001)discard;vec3 haloTint=mix(tint.rgb,vec3(1),.28);fragColor=vec4(mix(haloTint,tint.rgb,core),tint.a*mask);}`;
 function compile(type,code){const sh=gl.createShader(type);gl.shaderSource(sh,code);gl.compileShader(sh);if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(sh));return sh}
 function program(v,f){const p=gl.createProgram();gl.attachShader(p,compile(gl.VERTEX_SHADER,v));gl.attachShader(p,compile(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p}
 function uniform(p,n,v){const l=gl.getUniformLocation(p,n);if(l===null)return;if(Array.isArray(v)){({2:()=>gl.uniform2fv(l,v),3:()=>gl.uniform3fv(l,v),4:()=>gl.uniform4fv(l,v)})[v.length]()}else gl.uniform1f(l,v)}
-function configure(p,t){gl.useProgram(p);for(const [n,v]of Object.entries({material,time:t,idleMotion:[idlePhase,idleBlend],audioLevel:level,coreMotionPhase:phase,coreMotionIntensity:activity,motionScale:reduced.matches?.3:1,coreColorA:rgb(palette[picks[0]][1]),coreColorB:rgb(palette[picks[1]][1]),particleA:palette[picks[0]][2]?rgb(palette[picks[0]][2]):rgb(palette[picks[0]][1]).map(v=>v*.65),particleB:palette[picks[1]][2]?rgb(palette[picks[1]][2]):rgb(palette[picks[1]][1]).map(v=>v*.65),coreWarpFrequency:1.25,coreWarpAmount:.45,coreBoundarySoftness:.38,canvasSize:canvas.height,pixelRatio:devicePixelRatio,rotation}))uniform(p,n,v);for(let i=0;i<4;i++)uniform(p,'tap'+i,taps[i]||[0,0,-100,0])}
+function configure(p,t){const picks=material===4?pairPicks:[+$('colour-a').value,+$('colour-b').value];gl.useProgram(p);for(const [n,v]of Object.entries({material,meshMotion:[referenceMotion.time,referenceMotion.distortion,referenceMotion.swirl,referenceMotion.grain],meshError:material===4?referenceMotion.errorMix:0,meshPaletteTo:[...rgb(adjacent[picks[0]]),material===4&&(pairPicks[0]===pairPicks[1]||previewError||audioError||referenceMotion.errorMix>.001)?1:0],time:t,idleMotion:[idlePhase,idleBlend],audioLevel:level,coreMotionPhase:phase,coreMotionIntensity:activity,motionScale:reduced.matches?.3:1,coreColorA:rgb(palette[picks[0]][1]),coreColorB:rgb(palette[picks[1]][1]),particleA:palette[picks[0]][2]?rgb(palette[picks[0]][2]):rgb(palette[picks[0]][1]).map(v=>v*.65),particleB:palette[picks[1]][2]?rgb(palette[picks[1]][2]):rgb(palette[picks[1]][1]).map(v=>v*.65),coreWarpFrequency:1.25,coreWarpAmount:.45,coreBoundarySoftness:.38,canvasSize:canvas.height,pixelRatio:devicePixelRatio,rotation}))uniform(p,n,v);for(let i=0;i<4;i++)uniform(p,'tap'+i,taps[i]||[0,0,-100,0])}
 try{gl=canvas.getContext('webgl2',{alpha:false,antialias:true});if(!gl)throw Error('WebGL unavailable');programs={core:program(quadVertex,coreFragment),glow:program(quadVertex,glowFragment),particles:program(particleVertex,particleFragment)};vao=gl.createVertexArray();gl.bindVertexArray(vao);const seeds=new Float32Array(2000*8);let randomSeed=137454;const rand=()=>{randomSeed=(Math.imul(1664525,randomSeed)+1013904223)>>>0;return randomSeed/4294967296};for(let i=0;i<2000;i++){const y=1-2*(i+.5)/2000,r=Math.sqrt(1-y*y),a=Math.PI*(3-Math.sqrt(5))*i;let x=Math.cos(a)*r+(rand()*2-1)*.055,yy=y+(rand()*2-1)*.055,z=Math.sin(a)*r+(rand()*2-1)*.055;const length=Math.hypot(x,yy,z);const stray=rand()<.022;seeds.set([x/length,yy/length,z/length,i%2,1+(rand()*2-1)*.055+(stray?.04+rand()*.08:0),stray?.55+rand()*.4:.62+rand()*.93,rand()*50,0],i*8)}seedBuffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,seedBuffer);gl.bufferData(gl.ARRAY_BUFFER,seeds,gl.STATIC_DRAW);for(let i=0;i<2;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,4,gl.FLOAT,false,32,i*16)}gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(.996,.988,.980,1)}catch(e){console.error(e);$('render-error').hidden=false;gl=null}
 let last=performance.now(),start=last;
-function frame(now){const dt=Math.min((now-last)/1000,.05);last=now;const t=(now-start)/1000;idlePhase=(idlePhase+dt*2*Math.PI/4.8)%(2*Math.PI);idleBlend+=((mode==='idle'?1:0)-idleBlend)*(1-Math.exp(-dt/.65));if(analyser){analyser.getFloatTimeDomainData(bytes);let rms=0;for(const v of bytes)rms+=v*v;const raw=Math.min(1,Math.max(0,(Math.sqrt(rms/bytes.length)-.008)*7));level+=(raw-level)*(1-Math.exp(-dt/(raw>level?.055:.16)))}else level*=Math.exp(-dt/.16);const targetGain=mode==='speaking'?1.25:mode==='listening'?1:0;stateGain+=(targetGain-stateGain)*(1-Math.exp(-dt/.3));const envelope=Math.min(1,level*stateGain);const target=mode==='speaking'?.78+envelope*.55:mode==='listening'?.22+envelope*1.05:.12;activity+=(target-activity)*(1-Math.exp(-dt/(target>activity?.4:.7)));phase+=dt*.055*(reduced.matches?.3:1)*(1+activity*7+Math.max(activity-.25,0)*6);if(!drag){rotation[0]+=velocity[0]*dt;rotation[1]+=velocity[1]*dt;velocity=velocity.map(v=>v*Math.exp(-dt*1.7))}if(gl){const size=Math.round(canvas.clientWidth*Math.min(devicePixelRatio||1,2));if(canvas.width!==size){canvas.width=canvas.height=size;gl.viewport(0,0,size,size);$('dimensions').textContent=`This browser: ${canvas.clientWidth.toFixed(1)} px canvas · ${(canvas.clientWidth*.629).toFixed(1)} px nominal outer diameter · ${(canvas.clientWidth*.40900725).toFixed(1)} px inner diameter.`}gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.DEPTH_TEST);gl.depthMask(false);const rawLevel=level;level=envelope;configure(programs.glow,t);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);configure(programs.core,t);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);configure(programs.particles,t);gl.drawArrays(gl.POINTS,0,2000);level=rawLevel}requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function frame(now){const dt=Math.min((now-last)/1000,.05);last=now;const t=(now-start)/1000;idlePhase=(idlePhase+dt*2*Math.PI/4.8)%(2*Math.PI);idleBlend+=((mode==='idle'?1:0)-idleBlend)*(1-Math.exp(-dt/.65));if(analyser){analyser.getFloatTimeDomainData(bytes);let rms=0;for(const v of bytes)rms+=v*v;const raw=Math.min(1,Math.max(0,(Math.sqrt(rms/bytes.length)-.008)*7));level+=(raw-level)*(1-Math.exp(-dt/(raw>level?.055:.16)))}else level*=Math.exp(-dt/.16);const targetGain=mode==='speaking'?1.25:mode==='listening'?1:0;stateGain+=(targetGain-stateGain)*(1-Math.exp(-dt/.3));const envelope=Math.min(1,level*stateGain);referenceMotion.update(dt,mode,envelope,material===4&&(previewError||audioError),reduced.matches);const target=mode==='speaking'?.78+envelope*.55:mode==='listening'?.22+envelope*1.05:.12;activity+=(target-activity)*(1-Math.exp(-dt/(target>activity?.4:.7)));phase+=dt*.055*(reduced.matches?.3:1)*(1+activity*7+Math.max(activity-.25,0)*6);if(!drag){rotation[0]+=velocity[0]*dt;rotation[1]+=velocity[1]*dt;velocity=velocity.map(v=>v*Math.exp(-dt*1.7))}if(gl){const size=Math.round(canvas.clientWidth*Math.min(devicePixelRatio||1,2));if(canvas.width!==size){canvas.width=canvas.height=size;gl.viewport(0,0,size,size);$('dimensions').textContent=`This browser: ${canvas.clientWidth.toFixed(1)} px canvas · ${(canvas.clientWidth*.629).toFixed(1)} px nominal outer diameter · ${(canvas.clientWidth*.40900725).toFixed(1)} px inner diameter.`}gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.disable(gl.DEPTH_TEST);gl.depthMask(false);const rawLevel=level;level=envelope;configure(programs.glow,t);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.depthMask(true);configure(programs.core,t);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);configure(programs.particles,t);gl.drawArrays(gl.POINTS,0,2000);level=rawLevel}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 canvas.addEventListener('pointerdown',e=>{const rect=canvas.getBoundingClientRect();const outside=Math.hypot((e.clientX-rect.left)/rect.width*2-1,(e.clientY-rect.top)/rect.height*2-1)>.73;canvas.setPointerCapture(e.pointerId);drag={paging:outside,id:e.pointerId,x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,time:performance.now()};velocity=[0,0]});
 canvas.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id||drag.paging)return;const dt=Math.max((performance.now()-drag.time)/1000,.016),gain=3/canvas.clientWidth*(reduced.matches?.3:1),dx=(e.clientX-drag.x)*gain,dy=(e.clientY-drag.y)*gain;rotation[0]+=dx;rotation[1]+=dy;velocity=[Math.max(-3.2,Math.min(3.2,dx/dt)),Math.max(-3.2,Math.min(3.2,dy/dt))];Object.assign(drag,{x:e.clientX,y:e.clientY,time:performance.now()})});
 canvas.addEventListener('pointerup',e=>{if(!drag)return;if(drag.paging){const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy))selectVariant(material+(dx<0?1:-1),dx<0?1:-1);drag=null;return;}if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<8){const r=canvas.getBoundingClientRect();taps.unshift([(e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2,(performance.now()-start)/1000,0]);taps=taps.slice(0,4)}drag=null});canvas.addEventListener('pointercancel',()=>{drag=null;velocity=[0,0]});

@@ -17,6 +17,10 @@ targets:
     sources:
       - path: Sources
       - path: Shaders
+      - path: Licenses
+        buildPhase: resources
+      - path: THIRD_PARTY_NOTICES.md
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.quippyapp.prototype.voiceorb
